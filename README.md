@@ -1,0 +1,53 @@
+# Desarrollo de Software para Inteligencia Artificial Generativa
+## Caso de Aplicación — Módulo ADM · Evergreen
+
+**Entrega 1 — Funcionalidad RAG**
+
+---
+
+## Equipo
+
+| Integrante | Rol |
+|---|---|
+| Daniel Alejandro Garcia Zuluaica | Desarrollador |
+| Juan Esteban Quintero Herrera | Desarrollador |
+| Simon Ortiz Ohoa | Desarrollador |
+
+**Institución:** Universidad — Medellín, 2025-2026
+
+---
+
+## Contexto del Proyecto
+
+Este repositorio documenta la primera entrega del curso **"Desarrollo de Software para Inteligencia Artificial Generativa"**, continuación del módulo anterior donde se trabajó con **Node-RED** sobre el caso de estudio **Evergreen**, específicamente el módulo **ADM (Administración)**.
+
+El módulo ADM gestiona:
+- Gestión de usuarios y autenticación (login)
+- Control de acceso mediante roles y permisos
+- Validaciones de datos (correo, teléfono)
+- Agrocadenas y etapas del proceso productivo
+
+---
+
+## Entrega 1 — Informe Técnico RAG
+
+En esta entrega se define una **funcionalidad RAG (Retrieval-Augmented Generation)** aplicable al módulo ADM de Evergreen, justificando su utilidad y proponiendo una arquitectura de solución.
+
+### Estructura del informe
+
+| Sección | Descripción |
+|---|---|
+| 1. Funcionalidad RAG | Nombre y presentación de la funcionalidad |
+| 1.1 Presentación | Justificación y descripción clara |
+| 1.2 Esquema explicativo | Vista de negocio (no de componentes software) |
+| 2. Elementos de Datos | Base de conocimiento, entradas y salidas |
+| 3. Arquitectura | Propuesta de vista física (UML / C4) |
+| 4. Conclusiones | Reflexiones del equipo |
+
+📄 Ver informe: [docs/informe_tecnico_rag.md](docs/informe_tecnico_rag.md)
+
+---
+
+## Repositorio anterior (módulo previo)
+
+El trabajo del módulo anterior (Node-RED / Herramientas para la Industrialización del Software) se encuentra documentado separadamente en el repositorio Node-RED del equipo.
