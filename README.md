@@ -51,3 +51,105 @@ En esta entrega se define una **funcionalidad RAG (Retrieval-Augmented Generatio
 ## Repositorio anterior (módulo previo)
 
 El trabajo del módulo anterior (Node-RED / Herramientas para la Industrialización del Software) se encuentra documentado separadamente en el repositorio Node-RED del equipo.
+
+---
+
+## Prototipo inicial implementado
+
+Ya existe una implementación mínima alineada con el alcance del curso. No intenta resolver un RAG completo en producción, sino materializar la idea del informe en un prototipo ejecutable y explicable.
+
+### Qué incluye
+
+| Componente | Ubicación | Propósito |
+|---|---|---|
+| API FastAPI | `src/rag_adm/main.py` | Expone el endpoint `POST /recomendar-rol` |
+| Modelos tipados | `src/rag_adm/models.py` | Define contratos de entrada y salida |
+| Base de conocimiento | `data/` | Contiene políticas, permisos e histórico inicial |
+| Motor de recomendación | `src/rag_adm/recommender.py` | Resuelve rol, permisos y justificación |
+| Pruebas | `tests/test_recommender.py` | Valida dos escenarios base del dominio ADM |
+
+### Estructura implementada
+
+```text
+src/rag_adm/
+	main.py
+	models.py
+	knowledge_base.py
+	recommender.py
+data/
+	catalogo_permisos.json
+	politicas_acceso.json
+	historico_configuraciones.json
+tests/
+	test_recommender.py
+```
+
+### Cómo ejecutar el proyecto
+
+Si ya tienen `uv` instalado:
+
+```bash
+uv run uvicorn rag_adm.main:app --app-dir src --reload
+```
+
+La API queda disponible en:
+
+- `http://127.0.0.1:8000/health`
+- `http://127.0.0.1:8000/metadata`
+- `http://127.0.0.1:8000/docs`
+
+### Modos de ejecución del LLM
+
+El prototipo puede funcionar de dos formas:
+
+| Modo | Comportamiento |
+|---|---|
+| `mock` | Genera la justificación con un cliente local determinístico, sin depender de servicios externos |
+| `remote` | Usa un endpoint compatible con OpenAI para generar la justificación a partir del prompt y hace fallback a `mock` si falla |
+
+Por defecto, si no configuran variables de entorno, el proyecto arranca en modo `mock`.
+
+Para activar el modo `remote`, definan estas variables antes de ejecutar la API:
+
+```bash
+export LLM_API_KEY="<token>"
+export LLM_BASE_URL="https://api.openai.com/v1"
+export LLM_MODEL="gpt-4o-mini"
+export LLM_TIMEOUT_SECONDS="20"
+```
+
+### Cómo ejecutar pruebas
+
+```bash
+uv run --extra dev pytest
+```
+
+### Ejemplo de uso
+
+```bash
+curl -X POST http://127.0.0.1:8000/recomendar-rol \
+	-H "Content-Type: application/json" \
+	-d '{
+		"cargo": "Coordinador de agrocadena",
+		"modulo_asignado": "ADM",
+		"tipo_participante": "Productor",
+		"descripcion_adicional": "Hace seguimiento operativo de etapas"
+	}'
+```
+
+### Alcance actual del prototipo
+
+- Sí incluye contratos claros, recuperación básica sobre conocimiento inicial y respuesta estructurada.
+- Sí permite demostrar la continuidad entre Node-RED y la propuesta RAG del módulo ADM.
+- No incluye una base vectorial real.
+- Sí permite conexión opcional a un proveedor LLM externo compatible con OpenAI, pero mantiene fallback local para la sustentación.
+- No reemplaza el informe técnico: lo complementa con una base ejecutable para futuras entregas.
+
+### Endpoints actuales
+
+| Endpoint | Método | Propósito |
+|---|---|---|
+| `/health` | `GET` | Verifica que la API esté activa |
+| `/metadata` | `GET` | Resume el estado del conocimiento cargado y el modo del LLM |
+| `/recomendar-rol` | `POST` | Genera la recomendación de rol y permisos para un perfil ADM |
+

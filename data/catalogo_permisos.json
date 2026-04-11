@@ -1,0 +1,37 @@
+[
+  {
+    "nombre": "gestionar_usuarios",
+    "modulo": "ADM",
+    "descripcion": "Crear, editar y desactivar usuarios del sistema"
+  },
+  {
+    "nombre": "configurar_permisos",
+    "modulo": "ADM",
+    "descripcion": "Asignar o modificar roles y permisos"
+  },
+  {
+    "nombre": "ver_agrocadenas",
+    "modulo": "ADM",
+    "descripcion": "Consultar la lista y detalle de agrocadenas"
+  },
+  {
+    "nombre": "editar_agrocadenas",
+    "modulo": "ADM",
+    "descripcion": "Crear y modificar agrocadenas"
+  },
+  {
+    "nombre": "ver_etapas",
+    "modulo": "ADM",
+    "descripcion": "Consultar etapas asociadas a una agrocadena"
+  },
+  {
+    "nombre": "editar_etapas",
+    "modulo": "ADM",
+    "descripcion": "Crear y modificar etapas del proceso"
+  },
+  {
+    "nombre": "ver_reportes_adm",
+    "modulo": "ADM",
+    "descripcion": "Consultar reportes administrativos del modulo"
+  }
+]

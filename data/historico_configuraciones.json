@@ -1,0 +1,61 @@
+[
+  {
+    "id": "CFG-ADM-001",
+    "cargo": "Administrador de plataforma",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Administrador",
+    "descripcion_adicional": "Responsable de crear usuarios y revisar permisos.",
+    "rol": "Admin",
+    "permisos": [
+      "gestionar_usuarios",
+      "configurar_permisos",
+      "ver_agrocadenas",
+      "editar_agrocadenas",
+      "ver_etapas",
+      "editar_etapas",
+      "ver_reportes_adm"
+    ]
+  },
+  {
+    "id": "CFG-ADM-002",
+    "cargo": "Coordinador de agrocadena",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Productor",
+    "descripcion_adicional": "Consulta etapas y seguimiento de cadenas productivas.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas"]
+  },
+  {
+    "id": "CFG-ADM-003",
+    "cargo": "Analista de soporte ADM",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Administrador",
+    "descripcion_adicional": "Apoya la gestion de usuarios y auditoria de accesos.",
+    "rol": "Admin",
+    "permisos": [
+      "gestionar_usuarios",
+      "configurar_permisos",
+      "ver_agrocadenas",
+      "ver_etapas",
+      "ver_reportes_adm"
+    ]
+  },
+  {
+    "id": "CFG-ADM-004",
+    "cargo": "Enlace comercial",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Comercializador",
+    "descripcion_adicional": "Consulta reportes y estados de las agrocadenas.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm"]
+  },
+  {
+    "id": "CFG-ADM-005",
+    "cargo": "Gestor territorial",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Distribuidor",
+    "descripcion_adicional": "Hace seguimiento operativo en territorio.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas"]
+  }
+]

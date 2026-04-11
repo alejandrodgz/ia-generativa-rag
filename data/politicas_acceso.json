@@ -1,0 +1,63 @@
+{
+  "roles": [
+    {
+      "nombre": "Admin",
+      "descripcion": "Rol con acceso completo a la administracion del sistema.",
+      "permisos_por_modulo": {
+        "ADM": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas",
+          "editar_agrocadenas",
+          "ver_etapas",
+          "editar_etapas",
+          "ver_reportes_adm"
+        ]
+      }
+    },
+    {
+      "nombre": "Invitado",
+      "descripcion": "Rol con acceso restringido y orientado principalmente a consulta.",
+      "permisos_por_modulo": {
+        "ADM": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ]
+      }
+    }
+  ],
+  "reglas": [
+    {
+      "modulo": "ADM",
+      "tipo_participante": "Productor",
+      "rol_preferido": "Invitado",
+      "permisos": ["ver_agrocadenas", "ver_etapas"]
+    },
+    {
+      "modulo": "ADM",
+      "tipo_participante": "Distribuidor",
+      "rol_preferido": "Invitado",
+      "permisos": ["ver_agrocadenas", "ver_etapas"]
+    },
+    {
+      "modulo": "ADM",
+      "tipo_participante": "Comercializador",
+      "rol_preferido": "Invitado",
+      "permisos": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm"]
+    },
+    {
+      "modulo": "ADM",
+      "tipo_participante": "Administrador",
+      "rol_preferido": "Admin",
+      "permisos": [
+        "gestionar_usuarios",
+        "configurar_permisos",
+        "ver_agrocadenas",
+        "editar_agrocadenas",
+        "ver_etapas",
+        "editar_etapas",
+        "ver_reportes_adm"
+      ]
+    }
+  ]
+}
