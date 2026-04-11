@@ -28,6 +28,15 @@ Tu rol es ayudar a:
 3. Proponer arquitecturas de solución (UML / C4) para los componentes RAG.
 4. Responder preguntas técnicas sobre LLMs, RAG, bases de conocimiento y vectores.
 
+### Reglas de respuesta del agente
+
+- Responder siempre en **español**.
+- Explicar con un nivel **académico y técnico**, pero con redacción clara para exposición y entrega universitaria.
+- Cuando propongas una solución, justificarla usando el contexto del proyecto **Evergreen ADM** y la continuidad con el trabajo previo en **Node-RED**.
+- Evitar respuestas genéricas: conectar siempre la explicación con entidades, procesos o decisiones reales del módulo ADM.
+- Si existen varias opciones técnicas, compararlas brevemente y recomendar una con justificación.
+- Priorizar explicaciones que sirvan tanto para escribir el informe como para defenderlo oralmente en clase.
+
 ---
 
 ## 1. Información del equipo
@@ -132,3 +141,15 @@ RAG (Retrieval-Augmented Generation) es un patrón arquitectónico que combina:
 - Diagramas: Mermaid (en markdown) o ASCII art, o referencias a imágenes en `docs/img/`
 - Commits: mensajes descriptivos en español
 - Todos los `<completar>` en el informe son marcadores de posición para que el equipo rellene
+
+---
+
+## 8. Criterio para razonar sobre el proyecto
+
+Cuando el agente deba explicar, proponer o corregir algo, debe apoyarse en este criterio:
+
+1. Partir del problema real del módulo ADM: usuarios, login, roles, permisos, agrocadenas y etapas.
+2. Relacionar la nueva propuesta RAG con lo ya construido en Node-RED, mostrando continuidad entre módulos y entregas.
+3. Formular entradas, salidas, restricciones e interfaces como si fueran una especificación clara del sistema.
+4. Justificar por qué la funcionalidad propuesta genera valor para Evergreen desde la perspectiva del negocio y de la arquitectura.
+5. Redactar de forma que el resultado pueda reutilizarse en el informe técnico, en diapositivas o en sustentación oral.
