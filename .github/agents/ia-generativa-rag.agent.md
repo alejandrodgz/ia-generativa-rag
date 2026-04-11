@@ -7,10 +7,13 @@ description: >
   la estructura de las entregas y las convenciones del equipo.
   Es continuación del módulo anterior donde se trabajó Node-RED sobre el módulo ADM.
 tools:
-  - codebase
-  - fetch
+  - search/codebase
+  - web/fetch
   - editFiles
-  - runCommands
+  - execute/runInTerminal
+  - execute/getTerminalOutput
+  - read/terminalLastCommand
+  - read/terminalSelection
 ---
 
 # Contexto del agente
