@@ -9,7 +9,7 @@ description: >
 tools:
   - search/codebase
   - web/fetch
-  - editFiles
+  - edit/editFiles
   - execute/runInTerminal
   - execute/getTerminalOutput
   - read/terminalLastCommand
