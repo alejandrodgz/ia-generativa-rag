@@ -46,6 +46,8 @@ En esta entrega se define una **funcionalidad RAG (Retrieval-Augmented Generatio
 
 📄 Ver informe: [docs/informe_tecnico_rag.md](docs/informe_tecnico_rag.md)
 
+📄 Ver resumen simple de avance: [docs/resumen_implementacion_simple.md](docs/resumen_implementacion_simple.md)
+
 ---
 
 ## Repositorio anterior (módulo previo)
