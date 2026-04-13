@@ -120,6 +120,28 @@ export LLM_MODEL="gpt-4o-mini"
 export LLM_TIMEOUT_SECONDS="20"
 ```
 
+#### Modo recomendado — Ollama local (RAG real)
+
+Para correr el LLM localmente con Ollama (recomendado para demo y sustentación):
+
+```bash
+# 1. Instalar Ollama: https://ollama.com/download
+# 2. Bajar el modelo
+ollama pull qwen2.5:7b
+
+# 3. El servidor arranca automáticamente con el primer uso,
+#    o se puede levantar explícitamente:
+ollama serve
+
+# 4. Configurar el proyecto para apuntar a Ollama
+export LLM_API_KEY=ollama
+export LLM_BASE_URL=http://localhost:11434/v1
+export LLM_MODEL=qwen2.5:7b
+export LLM_TIMEOUT_SECONDS=60
+```
+
+Ollama expone una API compatible con OpenAI, por lo que el cliente existente se conecta sin cambios adicionales.
+
 ### Cómo ejecutar pruebas
 
 ```bash
@@ -143,9 +165,13 @@ curl -X POST http://127.0.0.1:8000/recomendar-rol \
 
 - Sí incluye contratos claros, recuperación básica sobre conocimiento inicial y respuesta estructurada.
 - Sí permite demostrar la continuidad entre Node-RED y la propuesta RAG del módulo ADM.
-- No incluye una base vectorial real.
-- Sí permite conexión opcional a un proveedor LLM externo compatible con OpenAI, pero mantiene fallback local para la sustentación.
-- No reemplaza el informe técnico: lo complementa con una base ejecutable para futuras entregas.
+- No incluye una base vectorial real (el retrieval es por similitud de tokens Jaccard).
+- Sí permite conexión opcional a cualquier proveedor compatible con OpenAI, incluido Ollama local.
+- No reemplaza el informe técnico: lo complementa con una base ejecutable.
+
+### Proxima evolucion planificada
+
+Se identificó que en el prototipo actual el LLM solo justifica una decisión ya tomada por lógica determinística. El siguiente paso es invertir ese flujo para que el LLM razone y decida a partir del contexto recuperado (RAG real). Ver el plan detallado en [docs/resumen_implementacion_simple.md](docs/resumen_implementacion_simple.md#9-plan-de-implementacion--rag-real-con-ollama).
 
 ### Endpoints actuales
 

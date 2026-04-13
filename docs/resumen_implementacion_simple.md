@@ -85,28 +85,108 @@ Tambien conviene demostrar que:
 
 En otras palabras: pasamos de una propuesta conceptual a un prototipo pequeno pero entendible.
 
-## 8. Que falta
+## 8. Limitacion critica identificada
 
-Todavia faltan varias cosas si se quisiera una solucion mas completa:
+Despues de revisar el prototipo con detalle, se identifico una limitacion de diseno importante:
 
-- una base vectorial real,
-- embeddings reales,
-- integracion real con un LLM productivo,
-- manejo mas completo de errores,
-- trazabilidad mas fuerte de fuentes,
-- una interfaz visual o integracion con el flujo existente.
+**El LLM no razona en el flujo actual. Solo redacta.**
 
-Pero esas cosas no eran obligatorias para esta fase inicial.
+El rol y los permisos los decide la logica deterministica (Counter + votos). El LLM solo recibe el resultado ya calculado y lo convierte en texto. Eso no es RAG real: es una plantilla con texto generado.
 
-## 9. Que sigue
+En un RAG bien disenado, el LLM debe:
+- recibir el perfil del usuario,
+- recibir el contexto recuperado (reglas y casos similares),
+- razonar sobre ese contexto,
+- decidir el rol, los permisos, la confianza y la justificacion.
 
-Lo mas razonable ahora es avanzar en uno de estos frentes:
+## 9. Plan de implementacion — RAG real con Ollama
 
-1. Mejorar la explicacion academica del proyecto para sustentacion.
-2. Formalizar mejor los criterios SDD: casos, reglas y aceptacion.
-3. Conectar el prototipo con un LLM real solo si el profesor pide demo mas tecnica.
-4. Preparar ejemplos concretos por tipo de usuario del modulo ADM.
+Se decidio evolucionar el prototipo para que el LLM tome las decisiones reales. Se usara Ollama como servidor LLM local.
+
+### Requisitos de entorno
+
+- Instalar Ollama: https://ollama.com/download
+- Bajar el modelo recomendado:
+  ```bash
+  ollama pull qwen2.5:7b
+  ```
+- Arrancar el servidor (queda corriendo en background):
+  ```bash
+  ollama serve
+  ```
+- Configurar las variables de entorno del proyecto:
+  ```bash
+  export LLM_API_KEY=ollama
+  export LLM_BASE_URL=http://localhost:11434/v1
+  export LLM_MODEL=qwen2.5:7b
+  export LLM_TIMEOUT_SECONDS=60
+  ```
+
+Ollama expone una API compatible con OpenAI en `/v1`, por lo que el `RemoteLLMClient` existente ya puede conectarse sin cambios en la capa HTTP.
+
+### Por que qwen2.5:7b
+
+Es el modelo open-source mas confiable para seguir instrucciones de formato JSON estructurado, que es exactamente lo que necesita el sistema para parsear la respuesta del LLM. Requiere ~4.4 GB de VRAM.
+
+### Cambios necesarios en el codigo
+
+#### Paso 1 — Redisenar el prompt (`prompt_builder.py`)
+
+El prompt actual le dice al LLM: "justifica esta decision que ya tomamos".
+
+El nuevo prompt debe decirle: "dado este perfil y este contexto, decide tu el rol, los permisos, la confianza y justifica". Ademas debe pedirle que responda en JSON con esta estructura exacta:
+
+```json
+{
+  "rol_recomendado": "Admin" | "Invitado",
+  "permisos_recomendados": ["permiso1", "permiso2"],
+  "justificacion": "texto explicando el razonamiento",
+  "nivel_confianza": "alto" | "medio" | "bajo"
+}
+```
+
+#### Paso 2 — Agregar parser de respuesta LLM (`llm_parser.py`)
+
+Nuevo modulo que:
+- extrae el JSON de la respuesta del LLM (puede venir con texto adicional),
+- valida que el rol exista en el catalogo,
+- filtra permisos que no existan en el catalogo (prevencion de alucinaciones),
+- lanza excepcion si la respuesta es invalida (para activar el fallback).
+
+#### Paso 3 — Invertir el flujo en `recommender.py`
+
+Flujo actual:
+```
+reglas + casos → votos → rol/permisos → LLM justifica
+```
+
+Flujo nuevo:
+```
+reglas + casos → prompt con contexto → LLM razona y decide → parser valida → respuesta
+                                                                     ↓ si falla
+                                                            fallback determinístico
+```
+
+La logica de votos (Counter) se conserva como fallback si el LLM no responde o responde con formato invalido.
+
+#### Paso 4 — Actualizar tests
+
+Los tests actuales asumen el flujo determinístico. Hay que agregar:
+- tests con `MockLLMClient` que simule respuesta JSON valida,
+- tests que verifiquen que la capa de validacion rechaza roles y permisos inexistentes,
+- tests de integracion opcionales contra Ollama local (marcados para saltar si Ollama no esta disponible).
+
+### Orden de implementacion recomendado
+
+| Paso | Archivo a modificar | Descripcion |
+|:---:|---|---|
+| 1 | `src/rag_adm/prompt_builder.py` | Redisenar prompt para que el LLM decida en JSON |
+| 2 | `src/rag_adm/llm_parser.py` | Nuevo: parser y validador de respuesta LLM |
+| 3 | `src/rag_adm/llm_client.py` | Integrar parser en `RemoteLLMClient.complete()` |
+| 4 | `src/rag_adm/recommender.py` | Invertir flujo: LLM decide, votos solo como fallback |
+| 5 | `src/rag_adm/models.py` | Revisar si hay que ajustar algun contrato |
+| 6 | `tests/` | Actualizar y ampliar tests |
 
 ## 10. Idea corta para explicarlo en clase
 
-"Primero definimos la funcionalidad RAG en el informe. Luego entramos en planeacion SDD para ordenar entradas, salidas y reglas. Despues construimos un prototipo minimo que ya recibe un perfil, consulta conocimiento del dominio ADM y recomienda rol y permisos con una justificacion."
+"Primero definimos la funcionalidad RAG en el informe. Construimos un prototipo inicial donde la logica deterministica tomaba las decisiones y el LLM solo justificaba. Luego identificamos que eso no era RAG real e invertimos el flujo: ahora el LLM recibe el contexto recuperado, razona y decide el rol y los permisos. La logica deterministica quedo como fallback de seguridad contra alucinaciones."
