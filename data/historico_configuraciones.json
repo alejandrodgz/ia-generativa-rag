@@ -7,13 +7,11 @@
     "descripcion_adicional": "Responsable de crear usuarios y revisar permisos.",
     "rol": "Admin",
     "permisos": [
-      "gestionar_usuarios",
-      "configurar_permisos",
-      "ver_agrocadenas",
-      "editar_agrocadenas",
-      "ver_etapas",
-      "editar_etapas",
-      "ver_reportes_adm"
+      "gestionar_usuarios", "configurar_permisos", "ver_agrocadenas",
+      "editar_agrocadenas", "gestionar_agrocadenas", "ver_etapas",
+      "editar_etapas", "aprobar_etapas", "ver_reportes_adm",
+      "exportar_reportes_adm", "auditar_accesos", "asignar_participantes",
+      "ver_trazabilidad", "notificar_participantes"
     ]
   },
   {
@@ -33,11 +31,8 @@
     "descripcion_adicional": "Apoya la gestion de usuarios y auditoria de accesos.",
     "rol": "Admin",
     "permisos": [
-      "gestionar_usuarios",
-      "configurar_permisos",
-      "ver_agrocadenas",
-      "ver_etapas",
-      "ver_reportes_adm"
+      "gestionar_usuarios", "configurar_permisos", "ver_agrocadenas",
+      "ver_etapas", "ver_reportes_adm", "auditar_accesos"
     ]
   },
   {
@@ -47,7 +42,7 @@
     "tipo_participante": "Comercializador",
     "descripcion_adicional": "Consulta reportes y estados de las agrocadenas.",
     "rol": "Invitado",
-    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm"]
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm", "exportar_reportes_adm"]
   },
   {
     "id": "CFG-ADM-005",
@@ -56,6 +51,174 @@
     "tipo_participante": "Distribuidor",
     "descripcion_adicional": "Hace seguimiento operativo en territorio.",
     "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad"]
+  },
+  {
+    "id": "CFG-ADM-006",
+    "cargo": "Auditor externo de procesos",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Auditor",
+    "descripcion_adicional": "Revisa el historial de accesos y genera reportes de cumplimiento.",
+    "rol": "Invitado",
+    "permisos": [
+      "ver_agrocadenas", "ver_etapas", "ver_reportes_adm",
+      "exportar_reportes_adm", "auditar_accesos", "ver_trazabilidad"
+    ]
+  },
+  {
+    "id": "CFG-ADM-007",
+    "cargo": "Tecnico de campo agrocadenas",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Tecnico",
+    "descripcion_adicional": "Registra avances de etapas en campo y notifica al equipo central.",
+    "rol": "Invitado",
+    "permisos": [
+      "ver_agrocadenas", "ver_etapas", "editar_etapas",
+      "aprobar_etapas", "ver_trazabilidad", "notificar_participantes"
+    ]
+  },
+  {
+    "id": "CFG-ADM-008",
+    "cargo": "Supervisor regional ADM",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Supervisor",
+    "descripcion_adicional": "Coordina multiples agrocadenas y aprueba cierre de etapas.",
+    "rol": "Admin",
+    "permisos": [
+      "ver_agrocadenas", "editar_agrocadenas", "gestionar_agrocadenas",
+      "ver_etapas", "editar_etapas", "aprobar_etapas",
+      "ver_reportes_adm", "exportar_reportes_adm",
+      "asignar_participantes", "ver_trazabilidad", "notificar_participantes"
+    ]
+  },
+  {
+    "id": "CFG-ADM-009",
+    "cargo": "Productor agricola independiente",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Productor",
+    "descripcion_adicional": "Participa en agrocadenas como proveedor de materia prima.",
+    "rol": "Invitado",
     "permisos": ["ver_agrocadenas", "ver_etapas"]
+  },
+  {
+    "id": "CFG-ADM-010",
+    "cargo": "Responsable de logistica distribuidora",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Distribuidor",
+    "descripcion_adicional": "Gestiona la trazabilidad del producto distribuido.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad"]
+  },
+  {
+    "id": "CFG-ADM-011",
+    "cargo": "Director de operaciones",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Administrador",
+    "descripcion_adicional": "Supervisa todas las agrocadenas y tiene acceso total.",
+    "rol": "Admin",
+    "permisos": [
+      "gestionar_usuarios", "configurar_permisos", "ver_agrocadenas",
+      "editar_agrocadenas", "gestionar_agrocadenas", "ver_etapas",
+      "editar_etapas", "aprobar_etapas", "ver_reportes_adm",
+      "exportar_reportes_adm", "auditar_accesos", "asignar_participantes",
+      "ver_trazabilidad", "notificar_participantes"
+    ]
+  },
+  {
+    "id": "CFG-ADM-012",
+    "cargo": "Analista de ventas agrocadena",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Comercializador",
+    "descripcion_adicional": "Analiza datos de ventas y exporta reportes periodicos.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm", "exportar_reportes_adm"]
+  },
+  {
+    "id": "CFG-ADM-013",
+    "cargo": "Inspector de calidad",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Auditor",
+    "descripcion_adicional": "Verifica cumplimiento de estandares en etapas del proceso.",
+    "rol": "Invitado",
+    "permisos": [
+      "ver_agrocadenas", "ver_etapas", "ver_reportes_adm",
+      "auditar_accesos", "ver_trazabilidad"
+    ]
+  },
+  {
+    "id": "CFG-ADM-014",
+    "cargo": "Tecnico de soporte sistemas ADM",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Tecnico",
+    "descripcion_adicional": "Da soporte tecnico a usuarios del modulo ADM.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad", "notificar_participantes"]
+  },
+  {
+    "id": "CFG-ADM-015",
+    "cargo": "Coordinador regional de productores",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Supervisor",
+    "descripcion_adicional": "Coordina productores de varias regiones y aprueba avances.",
+    "rol": "Admin",
+    "permisos": [
+      "ver_agrocadenas", "editar_agrocadenas", "ver_etapas",
+      "editar_etapas", "aprobar_etapas", "asignar_participantes",
+      "ver_trazabilidad", "notificar_participantes"
+    ]
+  },
+  {
+    "id": "CFG-ADM-016",
+    "cargo": "Representante comercial distribucion",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Distribuidor",
+    "descripcion_adicional": "Negocia condiciones con productores y consulta trazabilidad.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad"]
+  },
+  {
+    "id": "CFG-ADM-017",
+    "cargo": "Gerente de agrocadena cafe",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Productor",
+    "descripcion_adicional": "Lidera la cadena productiva del cafe y hace seguimiento de etapas.",
+    "rol": "Invitado",
+    "permisos": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad"]
+  },
+  {
+    "id": "CFG-ADM-018",
+    "cargo": "Jefe de control interno",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Auditor",
+    "descripcion_adicional": "Audita internamente accesos, permisos y cambios administrativos.",
+    "rol": "Invitado",
+    "permisos": [
+      "ver_agrocadenas", "ver_etapas", "ver_reportes_adm",
+      "exportar_reportes_adm", "auditar_accesos", "ver_trazabilidad"
+    ]
+  },
+  {
+    "id": "CFG-ADM-019",
+    "cargo": "Asistente administrativo ADM",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Administrador",
+    "descripcion_adicional": "Asiste en tareas administrativas menores, sin gestion de usuarios.",
+    "rol": "Admin",
+    "permisos": [
+      "ver_agrocadenas", "ver_etapas", "ver_reportes_adm",
+      "asignar_participantes", "notificar_participantes"
+    ]
+  },
+  {
+    "id": "CFG-ADM-020",
+    "cargo": "Especialista en trazabilidad agricola",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Tecnico",
+    "descripcion_adicional": "Documenta y valida la trazabilidad de productos en todas las etapas.",
+    "rol": "Invitado",
+    "permisos": [
+      "ver_agrocadenas", "ver_etapas", "editar_etapas",
+      "aprobar_etapas", "ver_trazabilidad"
+    ]
   }
 ]

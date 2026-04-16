@@ -1,37 +1,64 @@
 from __future__ import annotations
 
+import json
+
 from .models import PromptMessage, RecommendationRequest
 from .recommender import PromptBundle
 
 
-def build_messages(bundle: PromptBundle, rol: str, permisos: list[str], confianza: str) -> list[PromptMessage]:
+def build_messages(
+    bundle: PromptBundle,
+    roles_validos: set[str],
+    permisos_validos: set[str],
+) -> list[PromptMessage]:
+    """Construye los mensajes para el LLM.
+
+    Parte FIJA: instrucciones del sistema, formato JSON esperado, listas de valores validos.
+    Parte VARIABLE: perfil del usuario, reglas recuperadas, casos similares.
+
+    El LLM debe decidir rol, permisos, justificacion y confianza — no solo justificar
+    una decision ya tomada.
+    """
     reglas_texto = "\n".join(
-        f"- Modulo: {regla['modulo']}, participante: {regla['tipo_participante']}, rol sugerido: {regla['rol_preferido']}, permisos: {', '.join(regla['permisos'])}"
-        for regla in bundle.reglas_relevantes
-    ) or "- No se encontraron reglas exactas; usar politicas generales del modulo."
+        f"- Modulo: {r['modulo']}, participante: {r['tipo_participante']}, "
+        f"rol preferido: {r['rol_preferido']}, permisos sugeridos: {', '.join(r['permisos'])}"
+        for r in bundle.reglas_relevantes
+    ) or "- No se encontraron reglas exactas para este perfil."
 
     casos_texto = "\n".join(
-        f"- Caso {caso['id']}: cargo={caso['cargo']}, rol={caso['rol']}, permisos={', '.join(caso['permisos'])}, similitud={caso.get('_score', 0):.2f}"
-        for caso in bundle.casos_similares
+        f"- Caso {c['id']}: cargo={c['cargo']}, tipo={c['tipo_participante']}, "
+        f"rol={c['rol']}, permisos={', '.join(c['permisos'])}, similitud={c.get('_score', 0):.2f}"
+        for c in bundle.casos_similares
     ) or "- No se encontraron casos historicos relevantes."
 
-    perfil = _format_profile(bundle.perfil)
-    permisos_texto = ", ".join(permisos) if permisos else "sin permisos adicionales"
+    roles_lista = json.dumps(sorted(roles_validos), ensure_ascii=False)
+    permisos_lista = json.dumps(sorted(permisos_validos), ensure_ascii=False)
 
+    # --- PARTE FIJA ---
     system_prompt = (
-        "Eres un asistente de Evergreen ADM especializado en justificar la asignacion de roles y permisos. "
-        "Debes responder en espanol, con tono tecnico y claro, sin inventar permisos inexistentes y mencionando al menos una fuente del contexto proporcionado."
+        "Eres un asistente experto en el modulo ADM de Evergreen, especializado en asignacion de roles y permisos. "
+        "Tu tarea es razonar sobre el perfil de un usuario y el contexto recuperado, y DECIDIR el rol y permisos adecuados. "
+        "Debes responder UNICAMENTE con un objeto JSON valido, sin texto adicional antes ni despues del JSON."
     )
+
+    # --- PARTE VARIABLE (perfil + contexto recuperado) + instruccion de formato ---
     user_prompt = (
-        "Genera una justificacion breve y precisa para la recomendacion de acceso.\n"
-        f"Perfil del usuario:\n{perfil}\n\n"
-        f"Rol recomendado: {rol}\n"
-        f"Permisos recomendados: {permisos_texto}\n"
-        f"Nivel de confianza: {confianza}\n\n"
-        f"Reglas recuperadas:\n{reglas_texto}\n\n"
-        f"Casos similares recuperados:\n{casos_texto}\n\n"
-        "Redacta un unico parrafo que explique por que la recomendacion es coherente con el dominio ADM."
+        "Dado el siguiente perfil de usuario y el contexto recuperado del dominio ADM, "
+        "decide el rol y los permisos a asignar.\n\n"
+        f"## Perfil del usuario\n{_format_profile(bundle.perfil)}\n\n"
+        f"## Reglas del dominio ADM recuperadas\n{reglas_texto}\n\n"
+        f"## Casos historicos similares\n{casos_texto}\n\n"
+        f"## Roles validos en el sistema\n{roles_lista}\n\n"
+        f"## Permisos validos en el sistema\n{permisos_lista}\n\n"
+        "Responde SOLO con este JSON (sin markdown, sin texto extra):\n"
+        "{\n"
+        '  "rol_recomendado": "<uno de los roles validos>",\n'
+        '  "permisos_recomendados": ["<permiso1>", "<permiso2>"],\n'
+        '  "justificacion": "<explicacion de minimo 50 caracteres citando al menos una regla o caso recuperado>",\n'
+        '  "nivel_confianza": "<alto | medio | bajo>"\n'
+        "}"
     )
+
     return [
         PromptMessage(role="system", content=system_prompt),
         PromptMessage(role="user", content=user_prompt),

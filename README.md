@@ -1,7 +1,7 @@
 # Desarrollo de Software para Inteligencia Artificial Generativa
 ## Caso de Aplicación — Módulo ADM · Evergreen
 
-**Entrega 1 — Funcionalidad RAG**
+**Entrega 2 — RAG real con LLM**
 
 ---
 
@@ -19,165 +19,213 @@
 
 ## Contexto del Proyecto
 
-Este repositorio documenta la primera entrega del curso **"Desarrollo de Software para Inteligencia Artificial Generativa"**, continuación del módulo anterior donde se trabajó con **Node-RED** sobre el caso de estudio **Evergreen**, específicamente el módulo **ADM (Administración)**.
+Asistente RAG que recomienda roles y permisos para nuevos usuarios del módulo ADM de Evergreen. Dado el cargo, módulo y tipo de participante de un usuario, el sistema recupera reglas de acceso y casos históricos similares, y un LLM razona sobre ese contexto para decidir el rol, los permisos, la confianza y la justificación.
 
-El módulo ADM gestiona:
-- Gestión de usuarios y autenticación (login)
-- Control de acceso mediante roles y permisos
-- Validaciones de datos (correo, teléfono)
-- Agrocadenas y etapas del proceso productivo
+📄 Informe técnico: [docs/informe_tecnico_rag.md](docs/informe_tecnico_rag.md)
 
 ---
 
-## Entrega 1 — Informe Técnico RAG
+## Requisitos previos
 
-En esta entrega se define una **funcionalidad RAG (Retrieval-Augmented Generation)** aplicable al módulo ADM de Evergreen, justificando su utilidad y proponiendo una arquitectura de solución.
-
-### Estructura del informe
-
-| Sección | Descripción |
-|---|---|
-| 1. Funcionalidad RAG | Nombre y presentación de la funcionalidad |
-| 1.1 Presentación | Justificación y descripción clara |
-| 1.2 Esquema explicativo | Vista de negocio (no de componentes software) |
-| 2. Elementos de Datos | Base de conocimiento, entradas y salidas |
-| 3. Arquitectura | Propuesta de vista física (UML / C4) |
-| 4. Conclusiones | Reflexiones del equipo |
-
-📄 Ver informe: [docs/informe_tecnico_rag.md](docs/informe_tecnico_rag.md)
-
-📄 Ver resumen simple de avance: [docs/resumen_implementacion_simple.md](docs/resumen_implementacion_simple.md)
-
----
-
-## Repositorio anterior (módulo previo)
-
-El trabajo del módulo anterior (Node-RED / Herramientas para la Industrialización del Software) se encuentra documentado separadamente en el repositorio Node-RED del equipo.
-
----
-
-## Prototipo inicial implementado
-
-Ya existe una implementación mínima alineada con el alcance del curso. No intenta resolver un RAG completo en producción, sino materializar la idea del informe en un prototipo ejecutable y explicable.
-
-### Qué incluye
-
-| Componente | Ubicación | Propósito |
+| Herramienta | Versión mínima | Para qué |
 |---|---|---|
-| API FastAPI | `src/rag_adm/main.py` | Expone el endpoint `POST /recomendar-rol` |
-| Modelos tipados | `src/rag_adm/models.py` | Define contratos de entrada y salida |
-| Base de conocimiento | `data/` | Contiene políticas, permisos e histórico inicial |
-| Motor de recomendación | `src/rag_adm/recommender.py` | Resuelve rol, permisos y justificación |
-| Pruebas | `tests/test_recommender.py` | Valida dos escenarios base del dominio ADM |
+| Python | 3.12+ | Lenguaje base |
+| [uv](https://docs.astral.sh/uv/getting-started/installation/) | 0.5+ | Gestión de entorno y dependencias |
+| [Ollama](https://ollama.com/download) | cualquiera | LLM local (opcional, modo remote) |
 
-### Estructura implementada
+---
 
-```text
-src/rag_adm/
-	main.py
-	models.py
-	knowledge_base.py
-	recommender.py
-data/
-	catalogo_permisos.json
-	politicas_acceso.json
-	historico_configuraciones.json
-tests/
-	test_recommender.py
+## Instalación
+
+### 1. Clonar el repositorio
+
+```bash
+git clone <url-del-repositorio>
+cd ia-generativa-rag
 ```
 
-### Cómo ejecutar el proyecto
+### 2. Instalar `uv` (si no lo tienes)
 
-Si ya tienen `uv` instalado:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Reinicia la terminal o ejecuta `source ~/.bashrc` para que `uv` quede disponible.
+
+### 3. Instalar dependencias
+
+```bash
+uv sync --extra dev
+```
+
+Esto crea automáticamente el entorno virtual en `.venv/` e instala todas las dependencias del proyecto incluyendo las de desarrollo (pytest, httpx, etc.).
+
+### 4. Verificar la instalación
+
+```bash
+uv run --extra dev pytest tests/ -v
+```
+
+Deben pasar los 6 tests.
+
+---
+
+## Ejecución
+
+### Modo mock (sin LLM externo)
+
+El sistema toma decisiones determinísticas basadas en las reglas del dominio. Útil para desarrollo y CI.
 
 ```bash
 uv run uvicorn rag_adm.main:app --app-dir src --reload
 ```
 
-La API queda disponible en:
-
-- `http://127.0.0.1:8000/health`
-- `http://127.0.0.1:8000/metadata`
-- `http://127.0.0.1:8000/docs`
-
-### Modos de ejecución del LLM
-
-El prototipo puede funcionar de dos formas:
-
-| Modo | Comportamiento |
-|---|---|
-| `mock` | Genera la justificación con un cliente local determinístico, sin depender de servicios externos |
-| `remote` | Usa un endpoint compatible con OpenAI para generar la justificación a partir del prompt y hace fallback a `mock` si falla |
-
-Por defecto, si no configuran variables de entorno, el proyecto arranca en modo `mock`.
-
-Para activar el modo `remote`, definan estas variables antes de ejecutar la API:
+### Modo remote — Ollama local (recomendado para demo)
 
 ```bash
-export LLM_API_KEY="<token>"
-export LLM_BASE_URL="https://api.openai.com/v1"
-export LLM_MODEL="gpt-4o-mini"
-export LLM_TIMEOUT_SECONDS="20"
-```
+# 1. Instalar Ollama
+curl -fsSL https://ollama.com/install.sh | sh
 
-#### Modo recomendado — Ollama local (RAG real)
-
-Para correr el LLM localmente con Ollama (recomendado para demo y sustentación):
-
-```bash
-# 1. Instalar Ollama: https://ollama.com/download
-# 2. Bajar el modelo
+# 2. Descargar el modelo
 ollama pull qwen2.5:7b
 
-# 3. El servidor arranca automáticamente con el primer uso,
-#    o se puede levantar explícitamente:
-ollama serve
-
-# 4. Configurar el proyecto para apuntar a Ollama
-export LLM_API_KEY=ollama
-export LLM_BASE_URL=http://localhost:11434/v1
-export LLM_MODEL=qwen2.5:7b
-export LLM_TIMEOUT_SECONDS=60
+# 3. Arrancar el servidor con las variables de entorno
+LLM_MODE=remote \
+LLM_API_KEY=ollama \
+LLM_BASE_URL=http://localhost:11434/v1 \
+LLM_MODEL=qwen2.5:7b \
+uv run uvicorn rag_adm.main:app --app-dir src --reload
 ```
 
-Ollama expone una API compatible con OpenAI, por lo que el cliente existente se conecta sin cambios adicionales.
-
-### Cómo ejecutar pruebas
+### Modo remote — Gemini (Juan Esteban)
 
 ```bash
-uv run --extra dev pytest
+LLM_MODE=remote \
+LLM_API_KEY=<tu-api-key-de-google-ai-studio> \
+LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai \
+LLM_MODEL=gemini-1.5-flash \
+uv run uvicorn rag_adm.main:app --app-dir src --reload
 ```
 
-### Ejemplo de uso
+### Modo remote — Groq (Simon)
+
+```bash
+LLM_MODE=remote \
+LLM_API_KEY=<tu-api-key-de-groq> \
+LLM_BASE_URL=https://api.groq.com/openai/v1 \
+LLM_MODEL=llama-3.1-8b-instant \
+uv run uvicorn rag_adm.main:app --app-dir src --reload
+```
+
+> También puedes copiar `.env.example` a `.env` y definir las variables ahí.
+
+---
+
+## Acceso
+
+Con el servidor corriendo, abre en el navegador:
+
+| URL | Descripción |
+|---|---|
+| `http://127.0.0.1:8000` | Interfaz web del asistente |
+| `http://127.0.0.1:8000/docs` | Documentación interactiva (Swagger) |
+| `http://127.0.0.1:8000/health` | Estado de la API |
+| `http://127.0.0.1:8000/metadata` | Metadatos del conocimiento cargado |
+
+---
+
+## Ejemplo de uso con curl
 
 ```bash
 curl -X POST http://127.0.0.1:8000/recomendar-rol \
-	-H "Content-Type: application/json" \
-	-d '{
-		"cargo": "Coordinador de agrocadena",
-		"modulo_asignado": "ADM",
-		"tipo_participante": "Productor",
-		"descripcion_adicional": "Hace seguimiento operativo de etapas"
-	}'
+  -H "Content-Type: application/json" \
+  -d '{
+    "cargo": "Coordinador de agrocadena",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Productor",
+    "descripcion_adicional": "Hace seguimiento operativo de etapas"
+  }'
 ```
 
-### Alcance actual del prototipo
+Respuesta esperada:
 
-- Sí incluye contratos claros, recuperación básica sobre conocimiento inicial y respuesta estructurada.
-- Sí permite demostrar la continuidad entre Node-RED y la propuesta RAG del módulo ADM.
-- No incluye una base vectorial real (el retrieval es por similitud de tokens Jaccard).
-- Sí permite conexión opcional a cualquier proveedor compatible con OpenAI, incluido Ollama local.
-- No reemplaza el informe técnico: lo complementa con una base ejecutable.
+```json
+{
+  "rol_recomendado": "Invitado",
+  "permisos_recomendados": ["ver_agrocadenas", "ver_etapas"],
+  "justificacion": "Según las políticas del módulo ADM...",
+  "nivel_confianza": "alto",
+  "casos_similares_ref": ["CFG-ADM-002", "CFG-ADM-009", "CFG-ADM-017"]
+}
+```
 
-### Proxima evolucion planificada
+---
 
-Se identificó que en el prototipo actual el LLM solo justifica una decisión ya tomada por lógica determinística. El siguiente paso es invertir ese flujo para que el LLM razone y decida a partir del contexto recuperado (RAG real). Ver el plan detallado en [docs/resumen_implementacion_simple.md](docs/resumen_implementacion_simple.md#9-plan-de-implementacion--rag-real-con-ollama).
+## Ejecutar tests
 
-### Endpoints actuales
+```bash
+# Todos los tests
+uv run --extra dev pytest tests/ -v
 
-| Endpoint | Método | Propósito |
+# Solo un archivo
+uv run --extra dev pytest tests/test_recommender.py -v
+```
+
+---
+
+## Estructura del proyecto
+
+```text
+ia-generativa-rag/
+├── data/
+│   ├── catalogo_permisos.json          # 14 permisos del módulo ADM
+│   ├── politicas_acceso.json           # Roles y reglas por tipo de participante
+│   └── historico_configuraciones.json  # 20 casos históricos de asignación
+├── docs/
+│   ├── informe_tecnico_rag.md          # Informe Entrega 1
+│   └── plan_entrega2.md                # Plan de implementación Entrega 2
+├── src/rag_adm/
+│   ├── main.py           # API FastAPI + interfaz web
+│   ├── models.py         # Contratos de entrada y salida (Pydantic)
+│   ├── knowledge_base.py # Carga los archivos JSON de data/
+│   ├── retriever.py      # Interfaz Retriever + JaccardRetriever
+│   ├── recommender.py    # Orquestador del flujo RAG
+│   ├── prompt_builder.py # Construcción del prompt para el LLM
+│   ├── llm_client.py     # MockLLMClient y RemoteLLMClient
+│   ├── llm_parser.py     # Parser y validador de respuesta JSON del LLM
+│   ├── settings.py       # Variables de entorno
+│   └── static/
+│       └── index.html    # Interfaz web
+├── tests/
+│   ├── test_api.py
+│   └── test_recommender.py
+├── pyproject.toml
+└── .env.example
+```
+
+---
+
+## Variables de entorno
+
+| Variable | Default | Descripción |
 |---|---|---|
-| `/health` | `GET` | Verifica que la API esté activa |
-| `/metadata` | `GET` | Resume el estado del conocimiento cargado y el modo del LLM |
-| `/recomendar-rol` | `POST` | Genera la recomendación de rol y permisos para un perfil ADM |
+| `LLM_MODE` | `mock` | `mock` o `remote` |
+| `LLM_API_KEY` | — | API key del proveedor LLM |
+| `LLM_BASE_URL` | — | URL base compatible con OpenAI |
+| `LLM_MODEL` | — | Nombre del modelo a usar |
+| `LLM_TIMEOUT_SECONDS` | `20` | Timeout de la llamada al LLM |
+
+---
+
+## Endpoints
+
+| Endpoint | Método | Descripción |
+|---|---|---|
+| `/` | `GET` | Interfaz web |
+| `/health` | `GET` | Estado de la API |
+| `/metadata` | `GET` | Roles, módulos, permisos y modo LLM activo |
+| `/recomendar-rol` | `POST` | Genera recomendación de rol y permisos |
+
+
+---
 

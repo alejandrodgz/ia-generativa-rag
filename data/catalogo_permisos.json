@@ -33,5 +33,40 @@
     "nombre": "ver_reportes_adm",
     "modulo": "ADM",
     "descripcion": "Consultar reportes administrativos del modulo"
+  },
+  {
+    "nombre": "exportar_reportes_adm",
+    "modulo": "ADM",
+    "descripcion": "Descargar reportes administrativos en formato Excel o PDF"
+  },
+  {
+    "nombre": "auditar_accesos",
+    "modulo": "ADM",
+    "descripcion": "Revisar el historial de accesos y cambios de permisos"
+  },
+  {
+    "nombre": "gestionar_agrocadenas",
+    "modulo": "ADM",
+    "descripcion": "Crear, editar y archivar agrocadenas completas"
+  },
+  {
+    "nombre": "asignar_participantes",
+    "modulo": "ADM",
+    "descripcion": "Vincular participantes externos a una agrocadena"
+  },
+  {
+    "nombre": "ver_trazabilidad",
+    "modulo": "ADM",
+    "descripcion": "Consultar el historial de cambios de una agrocadena"
+  },
+  {
+    "nombre": "aprobar_etapas",
+    "modulo": "ADM",
+    "descripcion": "Validar y aprobar el cierre de etapas del proceso"
+  },
+  {
+    "nombre": "notificar_participantes",
+    "modulo": "ADM",
+    "descripcion": "Enviar notificaciones a participantes de una agrocadena"
   }
 ]

@@ -9,9 +9,16 @@
           "configurar_permisos",
           "ver_agrocadenas",
           "editar_agrocadenas",
+          "gestionar_agrocadenas",
           "ver_etapas",
           "editar_etapas",
-          "ver_reportes_adm"
+          "aprobar_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm",
+          "auditar_accesos",
+          "asignar_participantes",
+          "ver_trazabilidad",
+          "notificar_participantes"
         ]
       }
     },
@@ -21,7 +28,9 @@
       "permisos_por_modulo": {
         "ADM": [
           "ver_agrocadenas",
-          "ver_etapas"
+          "ver_etapas",
+          "ver_reportes_adm",
+          "ver_trazabilidad"
         ]
       }
     }
@@ -37,13 +46,13 @@
       "modulo": "ADM",
       "tipo_participante": "Distribuidor",
       "rol_preferido": "Invitado",
-      "permisos": ["ver_agrocadenas", "ver_etapas"]
+      "permisos": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad"]
     },
     {
       "modulo": "ADM",
       "tipo_participante": "Comercializador",
       "rol_preferido": "Invitado",
-      "permisos": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm"]
+      "permisos": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm", "exportar_reportes_adm"]
     },
     {
       "modulo": "ADM",
@@ -54,9 +63,60 @@
         "configurar_permisos",
         "ver_agrocadenas",
         "editar_agrocadenas",
+        "gestionar_agrocadenas",
         "ver_etapas",
         "editar_etapas",
-        "ver_reportes_adm"
+        "aprobar_etapas",
+        "ver_reportes_adm",
+        "exportar_reportes_adm",
+        "auditar_accesos",
+        "asignar_participantes",
+        "ver_trazabilidad",
+        "notificar_participantes"
+      ]
+    },
+    {
+      "modulo": "ADM",
+      "tipo_participante": "Auditor",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "ver_agrocadenas",
+        "ver_etapas",
+        "ver_reportes_adm",
+        "exportar_reportes_adm",
+        "auditar_accesos",
+        "ver_trazabilidad"
+      ]
+    },
+    {
+      "modulo": "ADM",
+      "tipo_participante": "Tecnico",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "ver_agrocadenas",
+        "ver_etapas",
+        "editar_etapas",
+        "aprobar_etapas",
+        "ver_trazabilidad",
+        "notificar_participantes"
+      ]
+    },
+    {
+      "modulo": "ADM",
+      "tipo_participante": "Supervisor",
+      "rol_preferido": "Admin",
+      "permisos": [
+        "ver_agrocadenas",
+        "editar_agrocadenas",
+        "gestionar_agrocadenas",
+        "ver_etapas",
+        "editar_etapas",
+        "aprobar_etapas",
+        "ver_reportes_adm",
+        "exportar_reportes_adm",
+        "asignar_participantes",
+        "ver_trazabilidad",
+        "notificar_participantes"
       ]
     }
   ]

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistente RAG ADM — Evergreen</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      width: 100%;
+      max-width: 680px;
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    header p {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    #llm-badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      margin-top: 0.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .card + .card { margin-top: 1.25rem; }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #374151;
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.3rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: #fff;
+      color: #111827;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
+    textarea { resize: vertical; min-height: 72px; }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.65rem;
+      background: #6366f1;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0.25rem;
+    }
+
+    button[type="submit"]:hover { background: #4f46e5; }
+    button[type="submit"]:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+    /* Result */
+    #result { display: none; }
+
+    .result-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #6b7280;
+      min-width: 140px;
+      padding-top: 0.1rem;
+    }
+
+    .result-value {
+      font-size: 0.9rem;
+      color: #111827;
+      flex: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .badge-admin { background: #fef3c7; color: #92400e; }
+    .badge-invitado { background: #e0f2fe; color: #0369a1; }
+    .badge-alto { background: #d1fae5; color: #065f46; }
+    .badge-medio { background: #fef3c7; color: #92400e; }
+    .badge-bajo { background: #fee2e2; color: #991b1b; }
+
+    .permisos-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .permiso-tag {
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 0.78rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    .casos-list { font-size: 0.82rem; color: #6b7280; }
+
+    #error-msg {
+      display: none;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+    }
+
+    #spinner {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.5rem 0;
+    }
+
+    #spinner span {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Asistente RAG — Evergreen ADM</h1>
+  <p>Recomendación de roles y permisos con IA generativa</p>
+  <span id="llm-badge">cargando...</span>
+</header>
+
+<div class="card">
+  <h2>Perfil del usuario</h2>
+  <form id="form">
+    <div class="field">
+      <label for="cargo">Cargo</label>
+      <input id="cargo" type="text" placeholder="Ej: Coordinador de agrocadena" required />
+    </div>
+    <div class="field">
+      <label for="modulo">Módulo asignado</label>
+      <select id="modulo" required></select>
+    </div>
+    <div class="field">
+      <label for="participante">Tipo de participante</label>
+      <select id="participante" required></select>
+    </div>
+    <div class="field">
+      <label for="descripcion">Descripción adicional <span style="color:#9ca3af;font-weight:400">(opcional)</span></label>
+      <textarea id="descripcion" placeholder="Información adicional sobre el perfil..."></textarea>
+    </div>
+    <button type="submit" id="submit-btn">Obtener recomendación</button>
+  </form>
+  <div id="error-msg"></div>
+</div>
+
+<div class="card" id="result">
+  <h2>Recomendación</h2>
+  <div id="spinner">
+    <svg width="45" height="45" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg" stroke="#6366f1">
+      <g fill="none" fill-rule="evenodd" transform="translate(1 1)" stroke-width="2">
+        <circle cx="22" cy="22" r="6" stroke-opacity="0">
+          <animate attributeName="r" begin="1.5s" dur="3s" values="6;22" calcMode="linear" repeatCount="indefinite" />
+          <animate attributeName="stroke-opacity" begin="1.5s" dur="3s" values="1;0" calcMode="linear" repeatCount="indefinite" />
+          <animate attributeName="stroke-width" begin="1.5s" dur="3s" values="2;0" calcMode="linear" repeatCount="indefinite" />
+        </circle>
+        <circle cx="22" cy="22" r="6" stroke-opacity="0">
+          <animate attributeName="r" begin="3s" dur="3s" values="6;22" calcMode="linear" repeatCount="indefinite" />
+          <animate attributeName="stroke-opacity" begin="3s" dur="3s" values="1;0" calcMode="linear" repeatCount="indefinite" />
+          <animate attributeName="stroke-width" begin="3s" dur="3s" values="2;0" calcMode="linear" repeatCount="indefinite" />
+        </circle>
+        <circle cx="22" cy="22" r="8">
+          <animate attributeName="r" begin="0s" dur="1.5s" values="6;1;2;3;4;5;6" calcMode="linear" repeatCount="indefinite" />
+        </circle>
+      </g>
+    </svg>
+    <span>Consultando al LLM...</span>
+  </div>
+  <div id="result-body">
+    <div class="result-row">
+      <span class="result-label">Rol recomendado</span>
+      <span class="result-value"><span id="res-rol" class="badge"></span></span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Nivel de confianza</span>
+      <span class="result-value"><span id="res-confianza" class="badge"></span></span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Permisos</span>
+      <span class="result-value"><div id="res-permisos" class="permisos-list"></div></span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Justificación</span>
+      <span class="result-value" id="res-justificacion"></span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Casos similares</span>
+      <span class="result-value casos-list" id="res-casos"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = '';
+
+  async function loadMetadata() {
+    try {
+      const res = await fetch(`${API}/metadata`);
+      const data = await res.json();
+
+      const modSelect = document.getElementById('modulo');
+      data.modulos_disponibles.forEach(m => {
+        modSelect.innerHTML += `<option value="${m}">${m}</option>`;
+      });
+
+      const partSelect = document.getElementById('participante');
+      data.tipos_participante_disponibles.forEach(t => {
+        partSelect.innerHTML += `<option value="${t}">${t}</option>`;
+      });
+
+      const badge = document.getElementById('llm-badge');
+      badge.textContent = `LLM: ${data.llm_mode === 'remote' ? 'Ollama (qwen2.5:7b)' : 'Mock (sin LLM)'}`;
+      badge.style.background = data.llm_mode === 'remote' ? '#d1fae5' : '#f3f4f6';
+      badge.style.color = data.llm_mode === 'remote' ? '#065f46' : '#6b7280';
+    } catch (e) {
+      console.error('Error cargando metadata', e);
+    }
+  }
+
+  document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const errorDiv = document.getElementById('error-msg');
+    const resultCard = document.getElementById('result');
+    const spinner = document.getElementById('spinner');
+    const resultBody = document.getElementById('result-body');
+
+    errorDiv.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Consultando...';
+    resultCard.style.display = 'block';
+    spinner.style.display = 'flex';
+    resultBody.style.display = 'none';
+
+    const payload = {
+      cargo: document.getElementById('cargo').value.trim(),
+      modulo_asignado: document.getElementById('modulo').value,
+      tipo_participante: document.getElementById('participante').value,
+    };
+    const desc = document.getElementById('descripcion').value.trim();
+    if (desc) payload.descripcion_adicional = desc;
+
+    try {
+      const res = await fetch(`${API}/recomendar-rol`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || `Error ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      const rolEl = document.getElementById('res-rol');
+      rolEl.textContent = data.rol_recomendado;
+      rolEl.className = `badge badge-${data.rol_recomendado.toLowerCase()}`;
+
+      const confEl = document.getElementById('res-confianza');
+      confEl.textContent = data.nivel_confianza;
+      confEl.className = `badge badge-${data.nivel_confianza}`;
+
+      const permisosEl = document.getElementById('res-permisos');
+      permisosEl.innerHTML = data.permisos_recomendados.length
+        ? data.permisos_recomendados.map(p => `<span class="permiso-tag">${p}</span>`).join('')
+        : '<span style="color:#9ca3af">Sin permisos asignados</span>';
+
+      document.getElementById('res-justificacion').textContent = data.justificacion;
+
+      const casosEl = document.getElementById('res-casos');
+      casosEl.textContent = data.casos_similares_ref.length
+        ? data.casos_similares_ref.join(', ')
+        : 'Ninguno';
+
+      spinner.style.display = 'none';
+      resultBody.style.display = 'block';
+
+    } catch (err) {
+      resultCard.style.display = 'none';
+      errorDiv.textContent = `Error: ${err.message}`;
+      errorDiv.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Obtener recomendación';
+    }
+  });
+
+  loadMetadata();
+</script>
+</body>
+</html>

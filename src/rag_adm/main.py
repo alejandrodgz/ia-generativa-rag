@@ -4,19 +4,31 @@ from functools import lru_cache
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from .knowledge_base import KnowledgeBase
 from .llm_client import build_llm_client
 from .models import HealthResponse, MetadataResponse, RecommendationRequest, RecommendationResponse
 from .recommender import RolePermissionRecommender
+from .retriever import JaccardRetriever
 from .settings import get_settings
 
+
+_STATIC = Path(__file__).parent / "static"
 
 app = FastAPI(
     title="Asistente RAG ADM",
     version="0.1.0",
     description="Prototipo minimo para recomendar roles y permisos en Evergreen ADM.",
 )
+
+app.mount("/static", StaticFiles(directory=_STATIC), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def ui() -> FileResponse:
+    return FileResponse(_STATIC / "index.html")
 
 
 @lru_cache
@@ -25,7 +37,8 @@ def get_recommender() -> RolePermissionRecommender:
     knowledge_base = KnowledgeBase.load(base_path)
     settings = get_settings()
     llm_client = build_llm_client(settings)
-    return RolePermissionRecommender(knowledge_base, llm_client)
+    retriever = JaccardRetriever(knowledge_base)
+    return RolePermissionRecommender(knowledge_base, llm_client, retriever)
 
 
 @lru_cache
