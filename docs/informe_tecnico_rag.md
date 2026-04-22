@@ -18,6 +18,12 @@
 |:---:|:---:|---|
 | 1.0 | 2026-04-11 | Creación inicial del documento |
 | 1.1 | 2026-04-11 | Diligenciamiento completo del informe técnico |
+| 1.2 | 2026-04-17 | Sección 2.1 corregida para reflejar la estructura real de los archivos JSON implementados |
+
+---
+
+> **Repositorio público del proyecto:** todas las rutas de archivo referenciadas en este documento (`data/`, `src/rag_adm/`, etc.) corresponden a la estructura del repositorio público disponible en:
+> **https://github.com/alejandrodgz/ia-generativa-rag**
 
 ---
 
@@ -32,6 +38,7 @@
    - 2.3 [Definición de Salidas](#23-definición-de-salidas)
 3. [Propuesta de Arquitectura de la Solución](#3-propuesta-de-arquitectura-de-la-solución)
 4. [Conclusiones del Caso de Aplicación](#4-conclusiones-del-caso-de-aplicación)
+5. [Referencias](#referencias)
 
 ---
 
@@ -103,21 +110,19 @@ El siguiente esquema ilustra la funcionalidad desde la perspectiva de negocio:
 
 ### 2.1 Definición de la Base de Conocimiento
 
-La base de conocimiento contiene toda la información del dominio que el LLM necesita para razonar correctamente sobre la asignación de roles y permisos en Evergreen ADM.
+Estos tres archivos conforman la base de conocimiento porque contienen todo el conocimiento del dominio que el LLM necesita para razonar: las reglas del negocio (políticas), el vocabulario controlado de acciones posibles (catálogo de permisos) y los precedentes reales de decisiones pasadas (histórico). Sin estos elementos el LLM no tendría contexto específico del módulo ADM y generaría recomendaciones genéricas o incorrectas. Se compone de tres archivos JSON ubicados en `data/` del repositorio público del proyecto (https://github.com/alejandrodgz/ia-generativa-rag):
 
-| Elemento | Descripción | Formato | Condiciones |
-|---|---|---|---|
-| **Políticas de acceso ADM** | Documento que define qué rol puede acceder a qué páginas, opciones y módulos del sistema Evergreen | Documento de texto estructurado (Markdown / PDF) | Debe estar actualizado con la versión vigente del sistema. Sin este documento el LLM no puede razonar correctamente |
-| **Catálogo de roles** | Definición formal de los roles existentes: `Admin` e `Invitado`, con sus características y alcances | Texto estructurado | Debe incluir la descripción funcional de cada rol, no solo su nombre |
-| **Catálogo de permisos** | Listado de todos los permisos disponibles en el sistema, agrupados por módulo, página y opción | Tabla (CSV / JSON) | Cada permiso debe tener nombre, módulo asociado y descripción de la acción permitida |
-| **Histórico de configuraciones** | Registro de asignaciones de roles y permisos previas para usuarios con cargos y tipos de participante similares | Tabla estructurada (JSON / CSV) | Datos anonimizados. Mínimo 10 casos previos para que el retrieval sea representativo |
-| **Descripción de tipos de participante** | Definición de los tipos de participante en las agrocadenas (Productor, Distribuidor, Comercializador, etc.) y su relación con los módulos del sistema | Documento de texto | Debe incluir el nivel de acceso típico de cada tipo de participante |
+| Elemento | Archivo | Contenido | Formato | Condiciones |
+|---|---|---|---|---|
+| **Políticas de acceso y roles** | `politicas_acceso.json` | Define los roles disponibles (`Admin`, `Invitado`) con sus permisos por módulo, y las reglas de acceso por tipo de participante (qué rol y permisos corresponden a cada combinación de módulo + tipo de participante) | JSON — dos secciones: `roles[]` y `reglas[]` | Debe estar actualizado con la versión vigente del sistema. Contiene simultáneamente el catálogo de roles y la descripción de tipos de participante válidos. Sin este archivo el LLM no puede razonar correctamente |
+| **Catálogo de permisos** | `catalogo_permisos.json` | Listado de todos los permisos disponibles en el módulo ADM, con nombre, módulo asociado y descripción de la acción que habilita | JSON — array de objetos `{nombre, modulo, descripcion}` | Cada permiso debe tener nombre único, módulo y descripción. El LLM usa este catálogo para validar y restringir los permisos que puede recomendar |
+| **Histórico de configuraciones** | `historico_configuraciones.json` | Registro de asignaciones de roles y permisos previas para usuarios con cargos y tipos de participante del módulo ADM | JSON — array de objetos `{id, cargo, modulo_asignado, tipo_participante, descripcion_adicional, rol, permisos[]}` | Mínimo 10 casos para que el retrieval sea representativo. Cada caso debe tener `id` único para trazabilidad. El retriever usa similitud de tokens (Jaccard) sobre los campos de texto para encontrar los casos más relevantes |
 
 ---
 
 ### 2.2 Definición de Entradas
 
-Estas son las entradas que el administrador proporciona al asistente para obtener la recomendación.
+Estos cuatro campos son las entradas porque representan el perfil mínimo necesario para identificar qué tipo de usuario se está configurando: el cargo describe sus responsabilidades, el módulo delimita su ámbito de trabajo en Evergreen, el tipo de participante determina su rol en la agrocadena, y la descripción adicional permite capturar contexto que no cabe en los campos estructurados. Juntos forman la consulta que el retriever usa para buscar casos similares en la base de conocimiento.
 
 | Entrada | Tipo | Descripción | Condiciones |
 |---|---|---|---|
@@ -130,7 +135,7 @@ Estas son las entradas que el administrador proporciona al asistente para obtene
 
 ### 2.3 Definición de Salidas
 
-El asistente genera una respuesta estructurada con la recomendación y su justificación.
+Estos cinco campos son las salidas porque cubren los tres requisitos de una recomendación accionable y auditable: la decisión en sí (`rol_recomendado` y `permisos_recomendados`), la trazabilidad de por qué se tomó esa decisión (`justificacion` y `casos_similares_ref`), y un indicador de confianza (`nivel_confianza`) que permite al administrador saber cuándo debe revisar manualmente el resultado antes de aplicarlo.
 
 | Salida | Tipo | Descripción | Condiciones |
 |---|---|---|---|
@@ -139,6 +144,14 @@ El asistente genera una respuesta estructurada con la recomendación y su justif
 | `justificacion` | `string` | Explicación en lenguaje natural del razonamiento del LLM: por qué recomienda ese rol y esos permisos, con referencias a las políticas recuperadas | Siempre presente. Mínimo 50 caracteres. Debe citar al menos una fuente de la base de conocimiento |
 | `nivel_confianza` | `"alto" \| "medio" \| "bajo"` | Indicador de qué tan seguro está el LLM de su recomendación, basado en la similitud con casos previos en la base de conocimiento | Siempre presente. Si es `"bajo"` se debe recomendar al administrador revisión manual |
 | `casos_similares_ref` | `string[]` | Referencias a configuraciones del histórico que sirvieron de base para la recomendación | Opcional. Útil para la auditabilidad de la decisión |
+
+---
+
+> **Nota sobre el Retriever — estado actual y evolución prevista**
+>
+> En la implementación actual se usa **similitud de Jaccard** sobre los campos de texto de los archivos JSON. Jaccard compara conjuntos de tokens entre la consulta y cada caso del histórico, sin requerir modelos de embeddings ni infraestructura externa — lo que lo hace ideal para prototipar y validar el flujo RAG completo con datos reales desde el primer día.
+>
+> La transición a un **retriever vectorial** (ChromaDB o pgvector) consiste en reemplazar el componente `JaccardRetriever` por un `VectorRetriever` que indexe los mismos archivos JSON como embeddings. El resto del sistema (API, prompt, LLM) no cambia, ya que ambos retrievers implementan la misma interfaz `Retriever`. Esta sustitución está planificada para la siguiente entrega mediante la variable de entorno `RETRIEVER_MODE=vector`.
 
 ---
 
@@ -212,3 +225,12 @@ C4Component
 ---
 
 *Documento elaborado en el marco del curso "Desarrollo de Software para Inteligencia Artificial Generativa" — Medellín, 2026.*
+
+---
+
+## Referencias
+
+| Recurso | Descripción | URL |
+|---|---|---|
+| **Repositorio del proyecto** | Código fuente completo del prototipo RAG — módulo ADM de Evergreen | https://github.com/alejandrodgz/ia-generativa-rag |
+| **Documento oficial del informe** | Versión editable del informe técnico en Microsoft Word (SharePoint EAFIT) | https://eafit-my.sharepoint.com/:w:/g/personal/sortizo1_eafit_edu_co/IQCXxM-VVcX_SYIhybd38wW0AbjBmtN_nGdrFjCg-FQg_qY?e=mdT6Ey |

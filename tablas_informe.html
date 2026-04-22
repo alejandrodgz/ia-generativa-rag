@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 40px; color: #1a1a1a; }
+  h2 { font-size: 13pt; margin-top: 32px; margin-bottom: 4px; }
+  p { margin: 6px 0 10px 0; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+  th { background-color: #2E4057; color: white; font-weight: bold; text-align: left; padding: 8px 10px; font-size: 10.5pt; }
+  td { border: 1px solid #C0C0C0; padding: 7px 10px; vertical-align: top; font-size: 10pt; }
+  tr:nth-child(even) td { background-color: #F5F5F5; }
+  tr:nth-child(odd) td { background-color: #FFFFFF; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #EEF0F4; padding: 1px 4px; border-radius: 3px; }
+  th { border: 1px solid #1E2D3D; }
+</style>
+</head>
+<body>
+
+<h2>2.1 Definición de la Base de Conocimiento</h2>
+<p>La base de conocimiento contiene toda la información del dominio que el LLM necesita para razonar correctamente sobre la asignación de roles y permisos en Evergreen ADM. Se compone de tres archivos JSON ubicados en <code>data/</code> del repositorio público del proyecto.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Elemento</th>
+      <th>Archivo</th>
+      <th>Contenido</th>
+      <th>Formato</th>
+      <th>Condiciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Políticas de acceso y roles</strong></td>
+      <td><code>politicas_acceso.json</code></td>
+      <td>Define los roles disponibles (<code>Admin</code>, <code>Invitado</code>) con sus permisos por módulo, y las reglas de acceso por tipo de participante (qué rol y permisos corresponden a cada combinación de módulo + tipo de participante)</td>
+      <td>JSON — dos secciones: <code>roles[]</code> y <code>reglas[]</code></td>
+      <td>Debe estar actualizado con la versión vigente del sistema. Contiene simultáneamente el catálogo de roles y la descripción de tipos de participante válidos. Sin este archivo el LLM no puede razonar correctamente</td>
+    </tr>
+    <tr>
+      <td><strong>Catálogo de permisos</strong></td>
+      <td><code>catalogo_permisos.json</code></td>
+      <td>Listado de todos los permisos disponibles en el módulo ADM, con nombre, módulo asociado y descripción de la acción que habilita</td>
+      <td>JSON — array de objetos <code>{nombre, modulo, descripcion}</code></td>
+      <td>Cada permiso debe tener nombre único, módulo y descripción. El LLM usa este catálogo para validar y restringir los permisos que puede recomendar</td>
+    </tr>
+    <tr>
+      <td><strong>Histórico de configuraciones</strong></td>
+      <td><code>historico_configuraciones.json</code></td>
+      <td>Registro de asignaciones de roles y permisos previas para usuarios con cargos y tipos de participante del módulo ADM</td>
+      <td>JSON — array de objetos <code>{id, cargo, modulo_asignado, tipo_participante, descripcion_adicional, rol, permisos[]}</code></td>
+      <td>Mínimo 10 casos para que el retrieval sea representativo. Cada caso debe tener <code>id</code> único para trazabilidad. El retriever usa similitud de tokens (Jaccard) sobre los campos de texto para encontrar los casos más relevantes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2.2 Definición de Entradas</h2>
+<p>Estas son las entradas que el administrador proporciona al asistente para obtener la recomendación.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Entrada</th>
+      <th>Tipo</th>
+      <th>Descripción</th>
+      <th>Condiciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>cargo</code></td>
+      <td><code>string</code></td>
+      <td>Cargo o rol organizacional del nuevo usuario dentro de la empresa u organización (ej: "Coordinador de Agrocadena", "Analista ADM")</td>
+      <td>Requerido. No vacío. Longitud máxima 100 caracteres</td>
+    </tr>
+    <tr>
+      <td><code>modulo_asignado</code></td>
+      <td><code>string</code></td>
+      <td>Módulo de Evergreen al que pertenece el usuario (ej: "ADM", "SUM", "COM")</td>
+      <td>Requerido. Debe corresponder a un módulo válido del sistema Evergreen</td>
+    </tr>
+    <tr>
+      <td><code>tipo_participante</code></td>
+      <td><code>string</code></td>
+      <td>Tipo de participante del usuario en la agrocadena (ej: "Productor", "Distribuidor", "Invitado externo")</td>
+      <td>Requerido. Debe pertenecer al catálogo de tipos de participante de Evergreen</td>
+    </tr>
+    <tr>
+      <td><code>descripcion_adicional</code></td>
+      <td><code>string</code></td>
+      <td>Contexto adicional libre sobre las responsabilidades del usuario que pueda orientar la recomendación</td>
+      <td>Opcional. Longitud máxima 500 caracteres</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2.3 Definición de Salidas</h2>
+<p>El asistente genera una respuesta estructurada con la recomendación y su justificación.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Salida</th>
+      <th>Tipo</th>
+      <th>Descripción</th>
+      <th>Condiciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>rol_recomendado</code></td>
+      <td><code>"Admin" | "Invitado"</code></td>
+      <td>Rol que el LLM recomienda asignar al usuario según su perfil y las políticas del sistema</td>
+      <td>Siempre presente. Debe ser uno de los valores del catálogo de roles de Evergreen</td>
+    </tr>
+    <tr>
+      <td><code>permisos_recomendados</code></td>
+      <td><code>string[]</code></td>
+      <td>Lista de nombres de permisos específicos que se sugieren activar para el usuario</td>
+      <td>Siempre presente. Cada elemento debe existir en el catálogo de permisos. Puede ser lista vacía solo en caso excepcional justificado</td>
+    </tr>
+    <tr>
+      <td><code>justificacion</code></td>
+      <td><code>string</code></td>
+      <td>Explicación en lenguaje natural del razonamiento del LLM: por qué recomienda ese rol y esos permisos, con referencias a las políticas recuperadas</td>
+      <td>Siempre presente. Mínimo 50 caracteres. Debe citar al menos una fuente de la base de conocimiento</td>
+    </tr>
+    <tr>
+      <td><code>nivel_confianza</code></td>
+      <td><code>"alto" | "medio" | "bajo"</code></td>
+      <td>Indicador de qué tan seguro está el LLM de su recomendación, basado en la similitud con casos previos en la base de conocimiento</td>
+      <td>Siempre presente. Si es <code>"bajo"</code> se debe recomendar al administrador revisión manual</td>
+    </tr>
+    <tr>
+      <td><code>casos_similares_ref</code></td>
+      <td><code>string[]</code></td>
+      <td>Referencias a configuraciones del histórico que sirvieron de base para la recomendación</td>
+      <td>Opcional. Útil para la auditabilidad de la decisión</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>
