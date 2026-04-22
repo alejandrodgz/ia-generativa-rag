@@ -11,7 +11,7 @@ from .knowledge_base import KnowledgeBase
 from .llm_client import build_llm_client
 from .models import HealthResponse, MetadataResponse, RecommendationRequest, RecommendationResponse
 from .recommender import RolePermissionRecommender
-from .retriever import JaccardRetriever
+from .retriever import JaccardRetriever, VectorRetriever
 from .settings import get_settings
 
 
@@ -37,7 +37,10 @@ def get_recommender() -> RolePermissionRecommender:
     knowledge_base = KnowledgeBase.load(base_path)
     settings = get_settings()
     llm_client = build_llm_client(settings)
-    retriever = JaccardRetriever(knowledge_base)
+    if settings.retriever_mode == "vector":
+        retriever = VectorRetriever(knowledge_base, settings, base_path)
+    else:
+        retriever = JaccardRetriever(knowledge_base)
     return RolePermissionRecommender(knowledge_base, llm_client, retriever)
 
 
