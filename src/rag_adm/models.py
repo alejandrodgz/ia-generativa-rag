@@ -16,6 +16,9 @@ class RecommendationResponse(BaseModel):
     justificacion: str
     nivel_confianza: Literal["alto", "medio", "bajo"]
     casos_similares_ref: list[str] = Field(default_factory=list)
+    retrieval_mode: Literal["jaccard", "vector"] | None = None
+    reglas_recuperadas_ref: list[str] = Field(default_factory=list)
+    casos_similares_score: list[dict[str, float | str]] = Field(default_factory=list)
 
 
 class HealthResponse(BaseModel):
@@ -24,11 +27,16 @@ class HealthResponse(BaseModel):
 
 class MetadataResponse(BaseModel):
     llm_mode: Literal["mock", "remote"]
+    retriever_mode: Literal["jaccard", "vector"]
     roles_disponibles: list[str]
     modulos_disponibles: list[str]
     tipos_participante_disponibles: list[str]
     total_permisos: int
     total_casos_historicos: int
+    vector_index_ready: bool = False
+    vector_collection_size: int | None = None
+    vector_store_path: str | None = None
+    embedding_model: str | None = None
 
 
 class PromptMessage(BaseModel):

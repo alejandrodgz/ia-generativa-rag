@@ -146,3 +146,30 @@ def build_or_load_vector_store(
             vector_store.add_documents(pdf_docs)
 
     return vector_store
+
+
+def get_vector_index_status(settings: Settings, base_path: Path) -> dict[str, Any]:
+    """Retorna estado operativo del indice vectorial sin forzar reindexacion."""
+    persist_path = Path(settings.vector_store_path)
+    if not persist_path.is_absolute():
+        persist_path = (base_path / settings.vector_store_path).resolve()
+
+    index_ready = persist_path.exists() and any(persist_path.iterdir())
+    collection_size: int | None = None
+
+    if index_ready:
+        try:
+            import chromadb
+
+            client = chromadb.PersistentClient(path=str(persist_path))
+            collection = client.get_or_create_collection(name=settings.vector_collection_name)
+            collection_size = collection.count()
+        except Exception:
+            collection_size = None
+
+    return {
+        "vector_index_ready": index_ready,
+        "vector_collection_size": collection_size,
+        "vector_store_path": str(persist_path),
+        "embedding_model": settings.embedding_model,
+    }

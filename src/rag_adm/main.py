@@ -13,6 +13,7 @@ from .models import HealthResponse, MetadataResponse, RecommendationRequest, Rec
 from .recommender import RolePermissionRecommender
 from .retriever import JaccardRetriever, VectorRetriever
 from .settings import get_settings
+from .vector_store import get_vector_index_status
 
 
 _STATIC = Path(__file__).parent / "static"
@@ -62,13 +63,29 @@ def metadata() -> MetadataResponse:
     modulos = sorted({regla["modulo"] for regla in kb.politicas["reglas"]})
     participantes = sorted({regla["tipo_participante"] for regla in kb.politicas["reglas"]})
     roles = sorted(kb.roles_validos())
+
+    base_path = Path(__file__).resolve().parents[2]
+    vector_status = {
+        "vector_index_ready": False,
+        "vector_collection_size": None,
+        "vector_store_path": None,
+        "embedding_model": None,
+    }
+    if settings.retriever_mode == "vector":
+        vector_status = get_vector_index_status(settings, base_path)
+
     return MetadataResponse(
         llm_mode=settings.llm_mode,
+        retriever_mode=settings.retriever_mode,
         roles_disponibles=roles,
         modulos_disponibles=modulos,
         tipos_participante_disponibles=participantes,
         total_permisos=len(kb.permisos),
         total_casos_historicos=len(kb.historico),
+        vector_index_ready=vector_status["vector_index_ready"],
+        vector_collection_size=vector_status["vector_collection_size"],
+        vector_store_path=vector_status["vector_store_path"],
+        embedding_model=vector_status["embedding_model"],
     )
 
 

@@ -47,6 +47,18 @@
       margin-top: 0.5rem;
     }
 
+    #retriever-badge {
+      display: inline-block;
+      background: #ecfeff;
+      color: #155e75;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      margin-top: 0.5rem;
+      margin-left: 0.4rem;
+    }
+
     .card {
       background: #fff;
       border-radius: 12px;
@@ -169,6 +181,18 @@
 
     .casos-list { font-size: 0.82rem; color: #6b7280; }
 
+    .debug-box {
+      margin-top: 0.75rem;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+
+    .debug-box div + div { margin-top: 0.3rem; }
+
     #error-msg {
       display: none;
       background: #fef2f2;
@@ -200,6 +224,7 @@
   <h1>Asistente RAG — Evergreen ADM</h1>
   <p>Recomendación de roles y permisos con IA generativa</p>
   <span id="llm-badge">cargando...</span>
+  <span id="retriever-badge">retriever: cargando...</span>
 </header>
 
 <div class="card">
@@ -269,6 +294,11 @@
       <span class="result-label">Casos similares</span>
       <span class="result-value casos-list" id="res-casos"></span>
     </div>
+    <div class="debug-box" id="retrieval-debug">
+      <div><strong>Retrieval:</strong> <span id="res-retrieval-mode">-</span></div>
+      <div><strong>Reglas recuperadas:</strong> <span id="res-reglas">-</span></div>
+      <div><strong>Top-k (id:score):</strong> <span id="res-topk">-</span></div>
+    </div>
   </div>
 </div>
 
@@ -294,6 +324,11 @@
       badge.textContent = `LLM: ${data.llm_mode === 'remote' ? 'Ollama (qwen2.5:7b)' : 'Mock (sin LLM)'}`;
       badge.style.background = data.llm_mode === 'remote' ? '#d1fae5' : '#f3f4f6';
       badge.style.color = data.llm_mode === 'remote' ? '#065f46' : '#6b7280';
+
+      const retrieverBadge = document.getElementById('retriever-badge');
+      retrieverBadge.textContent = `retriever: ${data.retriever_mode}`;
+      retrieverBadge.style.background = data.retriever_mode === 'vector' ? '#dcfce7' : '#fef3c7';
+      retrieverBadge.style.color = data.retriever_mode === 'vector' ? '#166534' : '#92400e';
     } catch (e) {
       console.error('Error cargando metadata', e);
     }
@@ -355,6 +390,14 @@
       casosEl.textContent = data.casos_similares_ref.length
         ? data.casos_similares_ref.join(', ')
         : 'Ninguno';
+
+      document.getElementById('res-retrieval-mode').textContent = data.retrieval_mode || '-';
+      document.getElementById('res-reglas').textContent = (data.reglas_recuperadas_ref || []).length
+        ? data.reglas_recuperadas_ref.join(', ')
+        : 'Ninguna';
+      document.getElementById('res-topk').textContent = (data.casos_similares_score || []).length
+        ? data.casos_similares_score.map(c => `${c.id}:${Number(c.score).toFixed(2)}`).join(', ')
+        : 'Sin coincidencias';
 
       spinner.style.display = 'none';
       resultBody.style.display = 'block';

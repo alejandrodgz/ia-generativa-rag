@@ -38,10 +38,23 @@ class RolePermissionRecommender:
 
         decision = self.llm_client.complete(bundle, roles_validos, permisos_validos)
 
+        retrieval_mode = "vector" if self.retriever.__class__.__name__ == "VectorRetriever" else "jaccard"
+        reglas_ref = [f"{regla.get('modulo', '')}:{regla.get('tipo_participante', '')}" for regla in reglas]
+        casos_score = [
+            {
+                "id": str(caso.get("id", "")),
+                "score": float(caso.get("_score", 0.0)),
+            }
+            for caso in casos
+        ]
+
         return RecommendationResponse(
             rol_recomendado=decision.rol_recomendado,
             permisos_recomendados=decision.permisos_recomendados,
             justificacion=decision.justificacion,
             nivel_confianza=decision.nivel_confianza,
             casos_similares_ref=[caso["id"] for caso in casos],
+            retrieval_mode=retrieval_mode,
+            reglas_recuperadas_ref=reglas_ref,
+            casos_similares_score=casos_score,
         )

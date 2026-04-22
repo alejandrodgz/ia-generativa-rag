@@ -19,6 +19,7 @@ def test_metadata_endpoint() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["llm_mode"] in {"mock", "remote"}
+    assert body["retriever_mode"] in {"jaccard", "vector"}
     assert "ADM" in body["modulos_disponibles"]
     assert body["total_permisos"] >= 1
 
@@ -37,3 +38,6 @@ def test_recomendar_rol_endpoint() -> None:
     body = response.json()
     assert body["rol_recomendado"] == "Admin"
     assert "gestionar_usuarios" in body["permisos_recomendados"]
+    assert body["retrieval_mode"] in {"jaccard", "vector"}
+    assert isinstance(body["reglas_recuperadas_ref"], list)
+    assert isinstance(body["casos_similares_score"], list)
