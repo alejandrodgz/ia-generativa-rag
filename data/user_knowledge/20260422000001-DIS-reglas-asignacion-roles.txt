@@ -1,0 +1,58 @@
+MÓDULO DIS — Reglas de Asignación de Roles y Casos de Referencia
+
+## Reglas Específicas para Asignación en DIS
+
+### Regla DIS-R01: Coordinador Logístico → Admin
+Todo participante con cargo de coordinación logística, jefatura de despacho o gerencia de distribución debe recibir rol Admin en DIS. Justificación: necesita acceso completo para planificar, cotizar, programar transporte y configurar canales.
+Permisos requeridos: dis_calcular_distancia_tiempo, dis_calcular_trayectoria_costo, dis_gestionar_pedidos, dis_programar_transporte, dis_consultar_estado_envio, dis_configurar_canales_comercializacion.
+
+### Regla DIS-R02: Transportista → Invitado
+Operadores de transporte, conductores y agentes de entrega reciben rol Invitado. Solo necesitan calcular rutas y consultar estado de envíos.
+Permisos recomendados: dis_calcular_distancia_tiempo, dis_calcular_trayectoria_costo, dis_consultar_estado_envio.
+
+### Regla DIS-R03: Cliente Interno / Seguimiento → Invitado mínimo
+Usuarios internos que solo dan seguimiento a pedidos reciben Invitado con acceso mínimo.
+Permisos recomendados: dis_calcular_distancia_tiempo, dis_consultar_estado_envio.
+
+### Regla DIS-R04: Analista Operativo con acceso a pedidos → Admin
+Si el analista necesita gestionar o modificar pedidos activos (no solo consultarlos), se requiere rol Admin.
+
+### Regla DIS-R05: Participante de canal comercial externo
+Nunca asignar permisos de escritura (dis_gestionar_pedidos, dis_programar_transporte, dis_configurar_canales_comercializacion) a participantes externos sin relación contractual con la operación logística.
+
+## Casos de Referencia
+
+Caso DIS-REF-001
+Cargo: Supervisor de ruta nocturna
+Tipo: Transportista
+Necesidad: Consultar distancias y estado de sus envíos asignados durante el turno.
+Rol asignado: Invitado
+Permisos: dis_calcular_distancia_tiempo, dis_calcular_trayectoria_costo, dis_consultar_estado_envio
+
+Caso DIS-REF-002
+Cargo: Jefe de operaciones de bodega central
+Tipo: CoordinadorLogistico
+Necesidad: Gestión integral de despachos, incluyendo programación de flotas y configuración de canales de venta.
+Rol asignado: Admin
+Permisos: todos los permisos DIS
+
+Caso DIS-REF-003
+Cargo: Asesor de servicio al cliente
+Tipo: ClienteInterno
+Necesidad: Responder consultas de clientes sobre estado de sus pedidos.
+Rol asignado: Invitado
+Permisos: dis_calcular_distancia_tiempo, dis_consultar_estado_envio
+
+Caso DIS-REF-004
+Cargo: Coordinador de exportaciones
+Tipo: CoordinadorLogistico
+Necesidad: Coordina distribución internacional; requiere calcular costos, gestionar pedidos de exportación y configurar canal de comercialización para mercados externos.
+Rol asignado: Admin
+Permisos: todos los permisos DIS
+
+Caso DIS-REF-005
+Cargo: Auxiliar de despacho
+Tipo: Transportista
+Necesidad: Solo verifica el estado de los envíos que le han sido asignados previamente.
+Rol asignado: Invitado
+Permisos: dis_consultar_estado_envio

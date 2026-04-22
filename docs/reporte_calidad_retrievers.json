@@ -1,0 +1,711 @@
+{
+  "metrics": [
+    {
+      "mode": "jaccard",
+      "total_cases": 12,
+      "role_accuracy": 1.0,
+      "permission_coverage": 0.9722222222222222,
+      "confidence_stability": 0.6666666666666666
+    },
+    {
+      "mode": "vector",
+      "total_cases": 12,
+      "role_accuracy": 1.0,
+      "permission_coverage": 0.9722222222222222,
+      "confidence_stability": 1.0
+    },
+    {
+      "mode": "hybrid",
+      "total_cases": 12,
+      "role_accuracy": 1.0,
+      "permission_coverage": 0.9722222222222222,
+      "confidence_stability": 1.0
+    }
+  ],
+  "raw_results": {
+    "jaccard": [
+      {
+        "case_id": "GOLD-001",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-002",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "medio"
+      },
+      {
+        "case_id": "GOLD-003",
+        "expected_role": "Admin",
+        "predicted_role": "Admin",
+        "role_ok": true,
+        "required_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas"
+        ],
+        "predicted_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas",
+          "editar_agrocadenas",
+          "gestionar_agrocadenas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-004",
+        "expected_role": "Admin",
+        "predicted_role": "Admin",
+        "role_ok": true,
+        "required_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "editar_agrocadenas"
+        ],
+        "predicted_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas",
+          "editar_agrocadenas",
+          "gestionar_agrocadenas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "medio"
+      },
+      {
+        "case_id": "GOLD-005",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-006",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-007",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-008",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "medio"
+      },
+      {
+        "case_id": "GOLD-009",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_reportes_adm",
+          "auditar_accesos"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm",
+          "auditar_accesos"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "medio"
+      },
+      {
+        "case_id": "GOLD-010",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_reportes_adm",
+          "auditar_accesos"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm",
+          "auditar_accesos"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-011",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "editar_etapas",
+          "notificar_participantes"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "editar_etapas",
+          "aprobar_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 0.6666666666666666,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-012",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "editar_etapas",
+          "aprobar_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "editar_etapas",
+          "aprobar_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      }
+    ],
+    "vector": [
+      {
+        "case_id": "GOLD-001",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-002",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-003",
+        "expected_role": "Admin",
+        "predicted_role": "Admin",
+        "role_ok": true,
+        "required_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas"
+        ],
+        "predicted_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas",
+          "editar_agrocadenas",
+          "gestionar_agrocadenas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-004",
+        "expected_role": "Admin",
+        "predicted_role": "Admin",
+        "role_ok": true,
+        "required_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "editar_agrocadenas"
+        ],
+        "predicted_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas",
+          "editar_agrocadenas",
+          "gestionar_agrocadenas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-005",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-006",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-007",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-008",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-009",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_reportes_adm",
+          "auditar_accesos"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm",
+          "auditar_accesos"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-010",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_reportes_adm",
+          "auditar_accesos"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm",
+          "auditar_accesos"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-011",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "editar_etapas",
+          "notificar_participantes"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "editar_etapas",
+          "aprobar_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 0.6666666666666666,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-012",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "editar_etapas",
+          "aprobar_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "editar_etapas",
+          "aprobar_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      }
+    ],
+    "hybrid": [
+      {
+        "case_id": "GOLD-001",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-002",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-003",
+        "expected_role": "Admin",
+        "predicted_role": "Admin",
+        "role_ok": true,
+        "required_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas"
+        ],
+        "predicted_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas",
+          "editar_agrocadenas",
+          "gestionar_agrocadenas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-004",
+        "expected_role": "Admin",
+        "predicted_role": "Admin",
+        "role_ok": true,
+        "required_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "editar_agrocadenas"
+        ],
+        "predicted_permissions": [
+          "gestionar_usuarios",
+          "configurar_permisos",
+          "ver_agrocadenas",
+          "editar_agrocadenas",
+          "gestionar_agrocadenas"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-005",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-006",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-007",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-008",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-009",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_reportes_adm",
+          "auditar_accesos"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm",
+          "auditar_accesos"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-010",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "ver_reportes_adm",
+          "auditar_accesos"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "ver_reportes_adm",
+          "exportar_reportes_adm",
+          "auditar_accesos"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-011",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "editar_etapas",
+          "notificar_participantes"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "editar_etapas",
+          "aprobar_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 0.6666666666666666,
+        "confidence": "alto"
+      },
+      {
+        "case_id": "GOLD-012",
+        "expected_role": "Invitado",
+        "predicted_role": "Invitado",
+        "role_ok": true,
+        "required_permissions": [
+          "ver_agrocadenas",
+          "editar_etapas",
+          "aprobar_etapas"
+        ],
+        "predicted_permissions": [
+          "ver_agrocadenas",
+          "ver_etapas",
+          "editar_etapas",
+          "aprobar_etapas",
+          "ver_trazabilidad"
+        ],
+        "permission_coverage": 1.0,
+        "confidence": "alto"
+      }
+    ]
+  }
+}

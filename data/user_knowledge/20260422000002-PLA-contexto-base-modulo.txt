@@ -1,0 +1,44 @@
+MÓDULO PLA — Planeación y Proyecciones (Evergreen)
+
+## Descripción General
+
+El módulo PLA de la plataforma Evergreen soporta los procesos de planeación operativa y estratégica de la cadena productiva. Permite a los equipos de análisis construir modelos de proyección, simular escenarios futuros, calificar resultados y publicar informes consolidados que sirven como base para la toma de decisiones gerenciales.
+
+El módulo integra herramientas de modelado cuantitativo con datos históricos de producción y distribución, facilitando la alineación entre capacidad disponible y demanda proyectada.
+
+## Tipos de Participante y Perfiles
+
+### AnalistaDatos
+Especialista técnico en modelado y análisis cuantitativo. Configura los parámetros del modelo, gestiona datasets y publica informes. Tiene la responsabilidad técnica de la validez de las proyecciones. Requiere acceso completo al módulo PLA, incluyendo la publicación de informes consolidados.
+
+### Planificador
+Usuario operativo que ejecuta simulaciones y proyecciones con los modelos ya configurados. No define la metodología pero sí corre los modelos para obtener resultados. Accede a datasets de referencia para sus análisis. Acceso típico: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_consultar_dataset.
+
+### LiderOperacion
+Responsable de interpretar resultados de planeación y tomar decisiones operativas. Revisa simulaciones y proyecciones ejecutadas por planificadores, valida resultados y aprueba la publicación de informes. Acceso típico: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_publicar_informe_consolidado.
+
+## Permisos del Módulo PLA
+
+- pla_simular_escenarios: Permite ejecutar simulaciones de escenarios alternativos (optimista, pesimista, base) usando el modelo vigente. Fundamental para análisis de sensibilidad y planeación contingente.
+
+- pla_ejecutar_proyeccion: Permite correr el modelo de proyección con los parámetros activos para generar una estimación futura (producción, demanda, costos). Operación central del módulo.
+
+- pla_calificar_proyecciones: Permite evaluar y puntuar la calidad o confiabilidad de una proyección generada. Usado para validación metodológica. Solo para perfiles con criterio analítico.
+
+- pla_gestionar_parametros_modelo: Permite modificar los parámetros base del modelo de proyección: factores de crecimiento, tasas de descuento, supuestos. Operación de alto impacto; reservada para especialistas.
+
+- pla_consultar_dataset: Permite explorar y consultar los datasets disponibles para alimentar modelos. Permiso de solo lectura sobre datos históricos y externos.
+
+- pla_publicar_informe_consolidado: Permite generar y publicar el informe de resultados consolidado para distribución a gerencia o entes externos. Acción irreversible de alto impacto; requiere autorización explícita.
+
+## Principios de Asignación de Roles en PLA
+
+1. El rol Admin en PLA se asigna a AnalistaDatos que requieren configurar modelos y publicar informes. Implica acceso a los seis permisos del módulo.
+
+2. El rol Invitado en PLA aplica a Planificadores (simular + proyectar + consultar datos) y a LideresOperacion (simular + proyectar + publicar).
+
+3. pla_gestionar_parametros_modelo y pla_calificar_proyecciones son permisos de alto impacto metodológico; solo deben asignarse a AnalistaDatos con rol Admin.
+
+4. pla_publicar_informe_consolidado tiene efectos externos (comunicación gerencial); puede asignarse a Invitado solo cuando el perfil tiene responsabilidad de reporte.
+
+5. Un usuario externo sin responsabilidad analítica no debe recibir permisos de escritura ni publicación en PLA. Solo pla_consultar_dataset si necesita revisar datos.

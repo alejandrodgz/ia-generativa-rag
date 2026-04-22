@@ -1,7 +1,7 @@
 # Desarrollo de Software para Inteligencia Artificial Generativa
-## Caso de Aplicación — Módulo ADM · Evergreen
+## Caso de Aplicacion — Asistente RAG Evergreen Multi-modulo (ADM, DIS, PLA, FIN)
 
-**Entrega 2 — RAG real con LLM**
+Version final para compartir con el equipo y usar en presentacion.
 
 ---
 
@@ -13,219 +13,386 @@
 | Juan Esteban Quintero Herrera | Desarrollador |
 | Simon Ortiz Ohoa | Desarrollador |
 
-**Institución:** Universidad — Medellín, 2025-2026
+Institucion: Universidad — Medellin, 2025-2026
 
 ---
 
-## Contexto del Proyecto
+## 1) Que resuelve este proyecto
 
-Asistente RAG que recomienda roles y permisos para nuevos usuarios del módulo ADM de Evergreen. Dado el cargo, módulo y tipo de participante de un usuario, el sistema recupera reglas de acceso y casos históricos similares, y un LLM razona sobre ese contexto para decidir el rol, los permisos, la confianza y la justificación.
+Esta API recomienda un rol y permisos para un usuario de Evergreen a partir de su perfil.
 
-📄 Informe técnico: [docs/informe_tecnico_rag.md](docs/informe_tecnico_rag.md)
+Entrada principal:
+- cargo
+- modulo_asignado (ADM, DIS, PLA, FIN)
+- tipo_participante
+- descripcion_adicional (opcional)
+
+Salida principal:
+- rol_recomendado (Admin o Invitado)
+- permisos_recomendados
+- justificacion
+- nivel_confianza
+- trazabilidad de recuperacion (reglas, casos, documentos de apoyo, modo de retrieval)
+
+El sistema soporta 3 estrategias de recuperacion:
+- jaccard: reglas y casos por similitud de texto simple
+- vector: recuperacion semantica con ChromaDB + embeddings
+- hybrid: reglas exactas + casos vectoriales con reranking por afinidad
 
 ---
 
-## Requisitos previos
+## 2) Requisitos previos
 
-| Herramienta | Versión mínima | Para qué |
+| Herramienta | Version minima | Uso |
 |---|---|---|
-| Python | 3.12+ | Lenguaje base |
-| [uv](https://docs.astral.sh/uv/getting-started/installation/) | 0.5+ | Gestión de entorno y dependencias |
-| [Ollama](https://ollama.com/download) | cualquiera | LLM local (opcional, modo remote) |
+| Python | 3.11+ | Runtime |
+| uv | 0.5+ | Entorno y dependencias |
+| Ollama | opcional | LLM local en modo remote |
+
+Instalar uv (si no lo tienes):
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc
+```
 
 ---
 
-## Instalación
+## 3) Montar el proyecto (paso a paso)
 
-### 1. Clonar el repositorio
+### Paso 1. Clonar y entrar
 
 ```bash
 git clone <url-del-repositorio>
 cd ia-generativa-rag
 ```
 
-### 2. Instalar `uv` (si no lo tienes)
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-Reinicia la terminal o ejecuta `source ~/.bashrc` para que `uv` quede disponible.
-
-### 3. Instalar dependencias
+### Paso 2. Instalar dependencias
 
 ```bash
 uv sync --extra dev
 ```
 
-Esto crea automáticamente el entorno virtual en `.venv/` e instala todas las dependencias del proyecto incluyendo las de desarrollo (pytest, httpx, etc.).
-
-### 4. Verificar la instalación
+### Paso 3. Activar entorno
 
 ```bash
-uv run --extra dev pytest tests/ -v
+source .venv/bin/activate
 ```
 
-Deben pasar los 6 tests.
+### Paso 4. Validar que todo esta bien
+
+```bash
+python -m pytest tests -q
+```
+
+Resultado esperado actual: todos los tests en verde.
 
 ---
 
-## Ejecución
+## 4) Ponerlo a correr
 
-### Modo mock (sin LLM externo)
+### Opcion A. Demo rapida (mock + jaccard)
 
-El sistema toma decisiones determinísticas basadas en las reglas del dominio. Útil para desarrollo y CI.
+No depende de Ollama.
 
 ```bash
-uv run uvicorn rag_adm.main:app --app-dir src --reload
+python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
 ```
 
-### Modo remote — Ollama local (recomendado para demo)
+### Opcion B. Vector (usa Chroma)
+
+Primer arranque reconstruyendo indice:
 
 ```bash
-# 1. Instalar Ollama
-curl -fsSL https://ollama.com/install.sh | sh
+RETRIEVER_MODE=vector \
+VECTOR_REBUILD_INDEX=true \
+python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
+```
 
-# 2. Descargar el modelo
+Siguientes arranques (sin rebuild completo):
+
+```bash
+RETRIEVER_MODE=vector \
+VECTOR_REBUILD_INDEX=false \
+python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
+```
+
+### Opcion C. Hybrid + Ollama (recomendado para presentacion)
+
+1. Levantar Ollama:
+
+```bash
 ollama pull qwen2.5:7b
+```
 
-# 3. Arrancar el servidor con las variables de entorno
-LLM_MODE=remote \
+2. Correr API:
+
+```bash
 LLM_API_KEY=ollama \
-LLM_BASE_URL=http://localhost:11434/v1 \
+LLM_BASE_URL=http://127.0.0.1:11434/v1 \
 LLM_MODEL=qwen2.5:7b \
-uv run uvicorn rag_adm.main:app --app-dir src --reload
+RETRIEVER_MODE=hybrid \
+HYBRID_RETRIEVER_MODE=true \
+HYBRID_K_SIMILAR_CASES=5 \
+HYBRID_AFFINITY_BOOST_FACTOR=1.2 \
+VECTOR_REBUILD_INDEX=false \
+python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
 ```
-
-### Modo remote — Gemini (Juan Esteban)
-
-```bash
-LLM_MODE=remote \
-LLM_API_KEY=<tu-api-key-de-google-ai-studio> \
-LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai \
-LLM_MODEL=gemini-1.5-flash \
-uv run uvicorn rag_adm.main:app --app-dir src --reload
-```
-
-### Modo remote — Groq (Simon)
-
-```bash
-LLM_MODE=remote \
-LLM_API_KEY=<tu-api-key-de-groq> \
-LLM_BASE_URL=https://api.groq.com/openai/v1 \
-LLM_MODEL=llama-3.1-8b-instant \
-uv run uvicorn rag_adm.main:app --app-dir src --reload
-```
-
-> También puedes copiar `.env.example` a `.env` y definir las variables ahí.
 
 ---
 
-## Acceso
+## 5) URLs clave
 
-Con el servidor corriendo, abre en el navegador:
+Con la API arriba:
 
-| URL | Descripción |
-|---|---|
-| `http://127.0.0.1:8000` | Interfaz web del asistente |
-| `http://127.0.0.1:8000/docs` | Documentación interactiva (Swagger) |
-| `http://127.0.0.1:8000/health` | Estado de la API |
-| `http://127.0.0.1:8000/metadata` | Metadatos del conocimiento cargado |
+- http://127.0.0.1:8000
+- http://127.0.0.1:8000/docs
+- http://127.0.0.1:8000/health
+- http://127.0.0.1:8000/metadata
+- http://127.0.0.1:8000/enrichment/status
 
 ---
 
-## Ejemplo de uso con curl
+## 6) Flujo exacto de informacion (campo por campo)
+
+### 6.1 Flujo de carga inicial del front
+
+1. El front abre en `/`.
+2. JS llama `GET /metadata`.
+3. Con `modulos_disponibles`, llena los selects:
+   - `modulo` (formulario de recomendacion)
+   - `doc-modulo` (formulario de carga de documentos)
+4. Con `tipos_participante_disponibles`, llena `participante`.
+5. Muestra badges de `llm_mode`, `retriever_mode` y estado del indice.
+
+### 6.2 Flujo de recomendacion principal (`POST /recomendar-rol`)
+
+Campos que envia el front:
+- `cargo`
+- `modulo_asignado`
+- `tipo_participante`
+- `descripcion_adicional`
+
+Validacion de entrada (Pydantic):
+- `cargo`: 1..100
+- `modulo_asignado`: 1..20
+- `tipo_participante`: 1..100
+- `descripcion_adicional`: opcional, max 500
+
+Recuperacion de contexto (RAG):
+1. `retrieve_rules(request)`
+   - usa `modulo_asignado` y `tipo_participante`
+   - obtiene reglas exactas o por modulo
+2. `retrieve_similar_cases(request)`
+   - usa `cargo + modulo_asignado + tipo_participante + descripcion_adicional`
+   - obtiene historicos similares
+3. `retrieve_supporting_documents(request)`
+   - usa query contextual + filtro por `modulo_asignado`
+   - fallback a documentos `GLOBAL` si aplica
+
+Decision:
+1. Se arma `PromptBundle` con perfil + reglas + casos + documentos.
+2. LLM (remote) o Mock (fallback) produce:
+   - `rol_recomendado`
+   - `permisos_recomendados`
+   - `justificacion`
+   - `nivel_confianza`
+
+Respuesta final (`RecommendationResponse`):
+- `rol_recomendado`
+- `permisos_recomendados`
+- `justificacion`
+- `nivel_confianza`
+- `casos_similares_ref`
+- `retrieval_mode`
+- `reglas_recuperadas_ref`
+- `casos_similares_score`
+- `documentos_apoyo_ref`
+- `reranking_info` (si modo hybrid)
+
+### 6.3 Flujo de enrichment de documentos
+
+#### A) Texto directo (`POST /enrichment/document`)
+Campos:
+- `modulo_asignado`
+- `title`
+- `content`
+
+Proceso:
+1. Guarda archivo en `data/user_knowledge/` con patron por modulo.
+2. Reindexa vector store (`force_full`).
+3. Limpia caches runtime.
+4. Devuelve conteo actualizado + estado de indice.
+
+#### B) Archivo (`POST /enrichment/document-upload`)
+Campos multipart:
+- `file`
+- `modulo_asignado`
+- `title` (opcional)
+
+Proceso igual al anterior: guardar -> reindexar -> responder estado.
+
+### 6.4 Flujo de casos sinteticos (`POST /enrichment/synthetic-cases`)
+
+Campos:
+- `cargo`
+- `modulo_asignado`
+- `tipo_participante`
+- `descripcion_base`
+- `count` (1..10)
+
+Proceso:
+1. Genera casos sinteticos consistentes con politicas.
+2. Los agrega al historico sintetico.
+3. Reindexa.
+4. Devuelve ids generados y nuevo total.
+
+---
+
+## 7) Endpoints principales
+
+| Endpoint | Metodo | Uso |
+|---|---|---|
+| `/` | GET | Frontend |
+| `/health` | GET | Healthcheck |
+| `/metadata` | GET | Catalogos, modos, estado indice |
+| `/recomendar-rol` | POST | Recomendacion principal |
+| `/enrichment/status` | GET | Conteo de enrichment |
+| `/enrichment/document` | POST | Agregar texto y reindexar |
+| `/enrichment/document-upload` | POST | Subir archivo y reindexar |
+| `/enrichment/synthetic-cases` | POST | Generar sinteticos y reindexar |
+| `/enrichment/reindex` | POST | Reindexacion manual |
+
+---
+
+## 8) Ejemplo de uso rapido (curl)
 
 ```bash
 curl -X POST http://127.0.0.1:8000/recomendar-rol \
   -H "Content-Type: application/json" \
   -d '{
-    "cargo": "Coordinador de agrocadena",
-    "modulo_asignado": "ADM",
-    "tipo_participante": "Productor",
-    "descripcion_adicional": "Hace seguimiento operativo de etapas"
+    "cargo": "Operador de ruta regional",
+    "modulo_asignado": "DIS",
+    "tipo_participante": "Transportista",
+    "descripcion_adicional": "Ejecuta entregas y consulta estado de envios"
   }'
 ```
 
-Respuesta esperada:
+---
 
-```json
-{
-  "rol_recomendado": "Invitado",
-  "permisos_recomendados": ["ver_agrocadenas", "ver_etapas"],
-  "justificacion": "Según las políticas del módulo ADM...",
-  "nivel_confianza": "alto",
-  "casos_similares_ref": ["CFG-ADM-002", "CFG-ADM-009", "CFG-ADM-017"]
-}
-```
+## 9) Variables de entorno
+
+### Core
+
+| Variable | Default | Descripcion |
+|---|---|---|
+| `LLM_API_KEY` | null | Credencial del proveedor (si remote) |
+| `LLM_BASE_URL` | null | Base URL compatible OpenAI |
+| `LLM_MODEL` | null | Modelo LLM |
+| `LLM_TIMEOUT_SECONDS` | `20` | Timeout de llamada LLM |
+| `RETRIEVER_MODE` | `jaccard` | `jaccard`, `vector`, `hybrid` |
+
+Nota: el modo LLM se infiere automaticamente. Si hay `LLM_API_KEY`, `LLM_BASE_URL` y `LLM_MODEL`, queda `remote`; de lo contrario usa `mock`.
+
+### Vector
+
+| Variable | Default | Descripcion |
+|---|---|---|
+| `VECTOR_STORE_PATH` | `./data/chroma_db` | Ruta del indice |
+| `VECTOR_COLLECTION_NAME` | `adm_knowledge_base` | Nombre de coleccion |
+| `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` | Modelo de embeddings |
+| `KNOWLEDGE_DOCS_PATH` | null | Carpeta PDF opcional |
+| `VECTOR_REBUILD_INDEX` | `false` | Forzar rebuild al arranque |
+| `VECTOR_REBUILD_POLICY` | `incremental` | `full` o `incremental` |
+
+### Hybrid
+
+| Variable | Default | Descripcion |
+|---|---|---|
+| `HYBRID_RETRIEVER_MODE` | `false` | Habilita config de hybrid |
+| `HYBRID_K_SIMILAR_CASES` | `5` | Top-k de casos |
+| `HYBRID_AFFINITY_THRESHOLD` | `0.0` | Umbral minimo |
+| `HYBRID_AFFINITY_BOOST_FACTOR` | `1.2` | Boost por afinidad |
+| `HYBRID_VECTOR_WEIGHT` | `0.7` | Peso vectorial |
+| `HYBRID_RULES_EXACT_MATCH_ONLY` | `true` | Reglas exactas |
 
 ---
 
-## Ejecutar tests
+## 10) Reindexacion sin levantar API
 
 ```bash
-# Todos los tests
-uv run --extra dev pytest tests/ -v
-
-# Solo un archivo
-uv run --extra dev pytest tests/test_recommender.py -v
+python scripts/reindex_vector_store.py --mode full
+python scripts/reindex_vector_store.py --mode incremental
 ```
 
 ---
 
-## Estructura del proyecto
+## 11) Estructura del proyecto (resumen)
 
 ```text
 ia-generativa-rag/
 ├── data/
-│   ├── catalogo_permisos.json          # 14 permisos del módulo ADM
-│   ├── politicas_acceso.json           # Roles y reglas por tipo de participante
-│   └── historico_configuraciones.json  # 20 casos históricos de asignación
+│   ├── catalogo_permisos.json
+│   ├── politicas_acceso.json
+│   ├── historico_configuraciones.json
+│   ├── historico_sintetico.json
+│   ├── user_knowledge/
+│   └── chroma_db/
 ├── docs/
-│   ├── informe_tecnico_rag.md          # Informe Entrega 1
-│   └── plan_entrega2.md                # Plan de implementación Entrega 2
 ├── src/rag_adm/
-│   ├── main.py           # API FastAPI + interfaz web
-│   ├── models.py         # Contratos de entrada y salida (Pydantic)
-│   ├── knowledge_base.py # Carga los archivos JSON de data/
-│   ├── retriever.py      # Interfaz Retriever + JaccardRetriever
-│   ├── recommender.py    # Orquestador del flujo RAG
-│   ├── prompt_builder.py # Construcción del prompt para el LLM
-│   ├── llm_client.py     # MockLLMClient y RemoteLLMClient
-│   ├── llm_parser.py     # Parser y validador de respuesta JSON del LLM
-│   ├── settings.py       # Variables de entorno
-│   └── static/
-│       └── index.html    # Interfaz web
+│   ├── main.py
+│   ├── models.py
+│   ├── knowledge_base.py
+│   ├── retriever.py
+│   ├── recommender.py
+│   ├── prompt_builder.py
+│   ├── llm_client.py
+│   ├── llm_parser.py
+│   ├── settings.py
+│   └── static/index.html
 ├── tests/
-│   ├── test_api.py
-│   └── test_recommender.py
 ├── pyproject.toml
-└── .env.example
+└── README.md
 ```
 
 ---
 
-## Variables de entorno
+## 12) Version para presentacion (guion corto, 7-10 min)
 
-| Variable | Default | Descripción |
-|---|---|---|
-| `LLM_MODE` | `mock` | `mock` o `remote` |
-| `LLM_API_KEY` | — | API key del proveedor LLM |
-| `LLM_BASE_URL` | — | URL base compatible con OpenAI |
-| `LLM_MODEL` | — | Nombre del modelo a usar |
-| `LLM_TIMEOUT_SECONDS` | `20` | Timeout de la llamada al LLM |
+### Slide 1 - Problema
+- En Evergreen hay altas y cambios de usuarios por modulo.
+- Asignar permisos manualmente es lento y propenso a errores.
+- Solucion: asistente RAG que recomienda rol y permisos con trazabilidad.
+
+### Slide 2 - Arquitectura
+- Frontend simple en FastAPI static.
+- API en FastAPI.
+- Base de conocimiento: permisos, politicas, historicos.
+- Retriever configurable: jaccard, vector, hybrid.
+- LLM mock o remote (Ollama).
+
+### Slide 3 - Demo en vivo
+- Mostrar `GET /metadata` y modulos ADM/DIS/PLA/FIN.
+- Ejecutar recomendacion para DIS y FIN.
+- Mostrar `documentos_apoyo_ref`, `casos_similares_ref`, `retrieval_mode`.
+
+### Slide 4 - Enrichment
+- Subir documento por modulo.
+- Generar casos sinteticos.
+- Reindexar y volver a consultar.
+- Comparar justificacion antes/despues.
+
+### Slide 5 - Cierre
+- Valor: estandariza decisiones de acceso y acelera onboarding.
+- Trazabilidad: reglas, casos y documentos recuperados.
+- Escalabilidad: mismo patron para nuevos modulos.
 
 ---
 
-## Endpoints
+## 13) Checklist final antes de compartir
 
-| Endpoint | Método | Descripción |
-|---|---|---|
-| `/` | `GET` | Interfaz web |
-| `/health` | `GET` | Estado de la API |
-| `/metadata` | `GET` | Roles, módulos, permisos y modo LLM activo |
-| `/recomendar-rol` | `POST` | Genera recomendación de rol y permisos |
-
-
----
-
+1. `python -m pytest tests -q`
+2. Abrir `http://127.0.0.1:8000/metadata` y validar modulos
+3. Probar una recomendacion por cada modulo
+4. Verificar que `documentos_apoyo_ref` aparezca en vector/hybrid
+5. Compartir este README con el comando de arranque elegido

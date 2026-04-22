@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .enrichment import load_synthetic_cases
+
 
 @dataclass(slots=True)
 class KnowledgeBase:
@@ -21,6 +23,7 @@ class KnowledgeBase:
             permisos = json.load(file)
         with (data_dir / "historico_configuraciones.json").open("r", encoding="utf-8") as file:
             historico = json.load(file)
+        historico.extend(load_synthetic_cases(base_path))
         return cls(politicas=politicas, permisos=permisos, historico=historico)
 
     def permisos_validos(self) -> set[str]:

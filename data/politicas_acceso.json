@@ -19,6 +19,30 @@
           "asignar_participantes",
           "ver_trazabilidad",
           "notificar_participantes"
+        ],
+        "DIS": [
+          "dis_calcular_distancia_tiempo",
+          "dis_calcular_trayectoria_costo",
+          "dis_gestionar_pedidos",
+          "dis_programar_transporte",
+          "dis_consultar_estado_envio",
+          "dis_configurar_canales_comercializacion"
+        ],
+        "PLA": [
+          "pla_simular_escenarios",
+          "pla_ejecutar_proyeccion",
+          "pla_calificar_proyecciones",
+          "pla_gestionar_parametros_modelo",
+          "pla_consultar_dataset",
+          "pla_publicar_informe_consolidado"
+        ],
+        "FIN": [
+          "fin_calcular_tasa_intercambio",
+          "fin_calcular_tarifa_impuestos_ue",
+          "fin_registrar_compradores_facturas",
+          "fin_consultar_cuentas_contables",
+          "fin_registrar_movimientos_contables",
+          "fin_generar_comprobante_egreso"
         ]
       }
     },
@@ -31,6 +55,21 @@
           "ver_etapas",
           "ver_reportes_adm",
           "ver_trazabilidad"
+        ],
+        "DIS": [
+          "dis_calcular_distancia_tiempo",
+          "dis_calcular_trayectoria_costo",
+          "dis_consultar_estado_envio"
+        ],
+        "PLA": [
+          "pla_simular_escenarios",
+          "pla_ejecutar_proyeccion",
+          "pla_consultar_dataset"
+        ],
+        "FIN": [
+          "fin_calcular_tasa_intercambio",
+          "fin_calcular_tarifa_impuestos_ue",
+          "fin_consultar_cuentas_contables"
         ]
       }
     }
@@ -117,6 +156,104 @@
         "asignar_participantes",
         "ver_trazabilidad",
         "notificar_participantes"
+      ]
+    },
+    {
+      "modulo": "DIS",
+      "tipo_participante": "Transportista",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "dis_calcular_distancia_tiempo",
+        "dis_calcular_trayectoria_costo",
+        "dis_consultar_estado_envio"
+      ]
+    },
+    {
+      "modulo": "DIS",
+      "tipo_participante": "CoordinadorLogistico",
+      "rol_preferido": "Admin",
+      "permisos": [
+        "dis_calcular_distancia_tiempo",
+        "dis_calcular_trayectoria_costo",
+        "dis_gestionar_pedidos",
+        "dis_programar_transporte",
+        "dis_consultar_estado_envio",
+        "dis_configurar_canales_comercializacion"
+      ]
+    },
+    {
+      "modulo": "DIS",
+      "tipo_participante": "ClienteInterno",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "dis_calcular_distancia_tiempo",
+        "dis_consultar_estado_envio"
+      ]
+    },
+    {
+      "modulo": "PLA",
+      "tipo_participante": "Planificador",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "pla_simular_escenarios",
+        "pla_ejecutar_proyeccion",
+        "pla_consultar_dataset"
+      ]
+    },
+    {
+      "modulo": "PLA",
+      "tipo_participante": "AnalistaDatos",
+      "rol_preferido": "Admin",
+      "permisos": [
+        "pla_simular_escenarios",
+        "pla_ejecutar_proyeccion",
+        "pla_calificar_proyecciones",
+        "pla_gestionar_parametros_modelo",
+        "pla_consultar_dataset",
+        "pla_publicar_informe_consolidado"
+      ]
+    },
+    {
+      "modulo": "PLA",
+      "tipo_participante": "LiderOperacion",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "pla_simular_escenarios",
+        "pla_ejecutar_proyeccion",
+        "pla_publicar_informe_consolidado"
+      ]
+    },
+    {
+      "modulo": "FIN",
+      "tipo_participante": "AnalistaFinanciero",
+      "rol_preferido": "Admin",
+      "permisos": [
+        "fin_calcular_tasa_intercambio",
+        "fin_calcular_tarifa_impuestos_ue",
+        "fin_registrar_compradores_facturas",
+        "fin_consultar_cuentas_contables",
+        "fin_registrar_movimientos_contables",
+        "fin_generar_comprobante_egreso"
+      ]
+    },
+    {
+      "modulo": "FIN",
+      "tipo_participante": "Contador",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "fin_registrar_compradores_facturas",
+        "fin_consultar_cuentas_contables",
+        "fin_generar_comprobante_egreso"
+      ]
+    },
+    {
+      "modulo": "FIN",
+      "tipo_participante": "AuditorFinanciero",
+      "rol_preferido": "Invitado",
+      "permisos": [
+        "fin_calcular_tasa_intercambio",
+        "fin_calcular_tarifa_impuestos_ue",
+        "fin_consultar_cuentas_contables"
       ]
     }
   ]

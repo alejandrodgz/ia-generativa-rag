@@ -1,0 +1,42 @@
+MÓDULO DIS — Distribución y Comercialización (Evergreen)
+
+## Descripción General
+
+El módulo DIS de la plataforma Evergreen gestiona la distribución física de productos agrícolas y la comercialización a través de canales logísticos multimodales. Cubre el ciclo completo desde la generación de pedidos hasta la confirmación de entrega, incluyendo planificación de rutas, selección de medios de transporte y seguimiento de envíos en tiempo real.
+
+## Tipos de Participante y Perfiles
+
+### CoordinadorLogistico
+Responsable de planificar y ejecutar la operación logística integral. Tiene visibilidad total sobre rutas, costos, pedidos y disponibilidad de transporte. Toma decisiones de optimización de recursos y es el punto de contacto con proveedores de transporte. Requiere acceso completo a todas las funciones del módulo DIS, incluyendo configuración de canales de comercialización.
+
+### Transportista
+Ejecuta las entregas en campo. Necesita consultar rutas, distancias, tiempos estimados y el estado de sus envíos activos. No requiere gestionar pedidos ni programar recursos de transporte; su perfil es operativo y de consulta. Acceso típico: dis_calcular_distancia_tiempo, dis_calcular_trayectoria_costo, dis_consultar_estado_envio.
+
+### ClienteInterno
+Usuario interno que solicita envíos o da seguimiento a pedidos en curso. Su interés principal es conocer el estado y tiempo estimado de entrega. Acceso mínimo necesario: dis_calcular_distancia_tiempo, dis_consultar_estado_envio.
+
+## Permisos del Módulo DIS
+
+- dis_calcular_distancia_tiempo: Permite consultar la distancia y el tiempo estimado de viaje entre origen y destino para una ruta dada. Fundamental para planificación y seguimiento operativo.
+
+- dis_calcular_trayectoria_costo: Permite calcular la trayectoria óptima y el costo asociado al viaje, considerando tipo de transporte y tarifas vigentes. Uso interno para cotizaciones y análisis de eficiencia.
+
+- dis_gestionar_pedidos: Permite crear, modificar y cerrar pedidos de distribución. Operación crítica reservada para coordinadores y administradores.
+
+- dis_programar_transporte: Permite asignar y programar vehículos o medios de transporte (terrestre, aéreo, acuático) a pedidos específicos. Requiere rol con capacidad de decisión sobre recursos.
+
+- dis_consultar_estado_envio: Permite ver el estado en tiempo real de un envío: en tránsito, en bodega, entregado. Permiso de solo lectura disponible para todos los participantes.
+
+- dis_configurar_canales_comercializacion: Permite configurar los canales de venta o distribución asociados a un pedido (mayorista, minorista, exportación). Exclusivo de perfiles administrativos con impacto comercial.
+
+## Principios de Asignación de Roles en DIS
+
+1. El rol Admin en DIS otorga acceso a los seis permisos del módulo. Aplica para CoordinadorLogistico y AnalistaDatos con responsabilidad operativa total.
+
+2. El rol Invitado en DIS otorga acceso de consulta y operación básica. Aplica para Transportista (con cálculo de ruta) y ClienteInterno (solo consulta de estado).
+
+3. Nunca asignar dis_gestionar_pedidos ni dis_programar_transporte a un Transportista o ClienteInterno. Estos permisos son exclusivos de coordinadores.
+
+4. dis_configurar_canales_comercializacion es el permiso de mayor impacto comercial; solo debe asignarse a perfiles Admin con responsabilidad sobre estrategia de distribución.
+
+5. Un participante externo (cliente final, proveedor externo) no debe recibir permisos de escritura en DIS; si necesita consultar envíos, se recomienda acceso de solo lectura vía dis_consultar_estado_envio.

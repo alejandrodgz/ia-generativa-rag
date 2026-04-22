@@ -31,23 +31,30 @@ def build_messages(
         for c in bundle.casos_similares
     ) or "- No se encontraron casos historicos relevantes."
 
+    documentos_texto = "\n".join(
+        f"- Documento {d.get('title', d.get('source_file', 'sin titulo'))}: "
+        f"{d.get('content_preview', '')} (similitud={d.get('_score', 0):.2f})"
+        for d in bundle.documentos_apoyo
+    ) or "- No se encontraron documentos de apoyo adicionales."
+
     roles_lista = json.dumps(sorted(roles_validos), ensure_ascii=False)
     permisos_lista = json.dumps(sorted(permisos_validos), ensure_ascii=False)
 
     # --- PARTE FIJA ---
     system_prompt = (
-        "Eres un asistente experto en el modulo ADM de Evergreen, especializado en asignacion de roles y permisos. "
+        "Eres un asistente experto en los modulos de Evergreen (ADM, DIS, PLA y FIN), especializado en asignacion de roles y permisos. "
         "Tu tarea es razonar sobre el perfil de un usuario y el contexto recuperado, y DECIDIR el rol y permisos adecuados. "
         "Debes responder UNICAMENTE con un objeto JSON valido, sin texto adicional antes ni despues del JSON."
     )
 
     # --- PARTE VARIABLE (perfil + contexto recuperado) + instruccion de formato ---
     user_prompt = (
-        "Dado el siguiente perfil de usuario y el contexto recuperado del dominio ADM, "
+        f"Dado el siguiente perfil de usuario y el contexto recuperado del dominio {bundle.perfil.modulo_asignado}, "
         "decide el rol y los permisos a asignar.\n\n"
         f"## Perfil del usuario\n{_format_profile(bundle.perfil)}\n\n"
-        f"## Reglas del dominio ADM recuperadas\n{reglas_texto}\n\n"
+        f"## Reglas del dominio {bundle.perfil.modulo_asignado} recuperadas\n{reglas_texto}\n\n"
         f"## Casos historicos similares\n{casos_texto}\n\n"
+        f"## Documentos de apoyo adicionales\n{documentos_texto}\n\n"
         f"## Roles validos en el sistema\n{roles_lista}\n\n"
         f"## Permisos validos en el sistema\n{permisos_lista}\n\n"
         "Responde SOLO con este JSON (sin markdown, sin texto extra):\n"

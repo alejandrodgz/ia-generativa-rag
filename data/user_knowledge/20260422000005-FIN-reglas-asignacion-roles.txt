@@ -1,0 +1,61 @@
+MÓDULO FIN — Reglas de Asignación de Roles y Casos de Referencia
+
+## Reglas Específicas para Asignación en FIN
+
+### Regla FIN-R01: Analista Financiero con responsabilidad integral → Admin
+Todo participante que gestiona tasas, impuestos, movimientos contables y aprueba comprobantes debe recibir rol Admin en FIN.
+Permisos requeridos: fin_calcular_tasa_intercambio, fin_calcular_tarifa_impuestos_ue, fin_registrar_compradores_facturas, fin_consultar_cuentas_contables, fin_registrar_movimientos_contables, fin_generar_comprobante_egreso.
+
+### Regla FIN-R02: Contador de gestión diaria → Invitado
+Contadores que registran facturas y generan comprobantes sin acceder a tasas de cambio ni impuestos EU reciben Invitado.
+Permisos recomendados: fin_registrar_compradores_facturas, fin_consultar_cuentas_contables, fin_generar_comprobante_egreso.
+
+### Regla FIN-R03: Auditor de cumplimiento → Invitado de control
+Auditores que verifican tasas e impuestos sin registrar transacciones reciben Invitado con acceso de consulta y cálculo.
+Permisos recomendados: fin_calcular_tasa_intercambio, fin_calcular_tarifa_impuestos_ue, fin_consultar_cuentas_contables.
+
+### Regla FIN-R04: Restricción sobre fin_registrar_movimientos_contables
+Este permiso solo se asigna a perfiles Admin. El registro en el libro mayor es una operación con impacto directo en estados financieros; un error no es fácilmente reversible sin proceso de auditoría.
+
+### Regla FIN-R05: Contadores sin comercio exterior
+Un Contador enfocado en operaciones domésticas no necesita fin_calcular_tarifa_impuestos_ue. Solo asignar ese permiso si el cargo tiene responsabilidad sobre transacciones con contrapartes europeas.
+
+### Regla FIN-R06: Separación de funciones (SoD)
+Evitar asignar simultáneamente fin_registrar_compradores_facturas y fin_generar_comprobante_egreso a perfiles Invitado sin aprobación adicional. La concentración de estas dos funciones en un solo usuario aumenta el riesgo de fraude contable.
+
+## Casos de Referencia
+
+Caso FIN-REF-001
+Cargo: Analista de tesorería internacional
+Tipo: AnalistaFinanciero
+Necesidad: Calcula tasas de cambio para operaciones en dólares y euros; registra movimientos en el libro mayor; genera comprobantes de pago a exportadores.
+Rol asignado: Admin
+Permisos: todos los permisos FIN
+
+Caso FIN-REF-002
+Cargo: Auxiliar contable
+Tipo: Contador
+Necesidad: Registra facturas de proveedores locales y genera comprobantes de egreso para pagos aprobados. No trabaja con tasas ni impuestos internacionales.
+Rol asignado: Invitado
+Permisos: fin_registrar_compradores_facturas, fin_consultar_cuentas_contables, fin_generar_comprobante_egreso
+
+Caso FIN-REF-003
+Cargo: Auditor interno tributario
+Tipo: AuditorFinanciero
+Necesidad: Verifica el correcto cálculo de tarifas de impuestos UE y revisa saldos de cuentas contables. No realiza registros.
+Rol asignado: Invitado
+Permisos: fin_calcular_tasa_intercambio, fin_calcular_tarifa_impuestos_ue, fin_consultar_cuentas_contables
+
+Caso FIN-REF-004
+Cargo: Contador senior de exportaciones
+Tipo: Contador
+Necesidad: Trabaja con facturas de compradores europeos; necesita calcular impuestos UE para validar montos antes de registrar.
+Rol asignado: Invitado
+Permisos: fin_calcular_tarifa_impuestos_ue, fin_registrar_compradores_facturas, fin_consultar_cuentas_contables, fin_generar_comprobante_egreso
+
+Caso FIN-REF-005
+Cargo: Director financiero regional
+Tipo: AnalistaFinanciero
+Necesidad: Supervisa toda la operación financiera; revisa, aprueba y en ocasiones ejecuta movimientos contables y cierre de período.
+Rol asignado: Admin
+Permisos: todos los permisos FIN

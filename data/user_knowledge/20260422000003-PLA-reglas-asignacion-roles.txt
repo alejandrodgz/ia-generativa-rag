@@ -1,0 +1,59 @@
+MÓDULO PLA — Reglas de Asignación de Roles y Casos de Referencia
+
+## Reglas Específicas para Asignación en PLA
+
+### Regla PLA-R01: Analista de Datos / Especialista en Modelos → Admin
+Todo participante con responsabilidad de configurar parámetros, calificar proyecciones o publicar informes finales debe recibir rol Admin en PLA.
+Permisos requeridos: todos los permisos PLA (pla_simular_escenarios, pla_ejecutar_proyeccion, pla_calificar_proyecciones, pla_gestionar_parametros_modelo, pla_consultar_dataset, pla_publicar_informe_consolidado).
+
+### Regla PLA-R02: Planificador Operativo → Invitado
+Planificadores que ejecutan proyecciones con modelos preconfigurados reciben Invitado. No necesitan modificar parámetros ni calificar resultados.
+Permisos recomendados: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_consultar_dataset.
+
+### Regla PLA-R03: Líder de Operación con responsabilidad de reporte → Invitado con publicación
+Líderes que aprueban y publican resultados reciben Invitado con permiso de publicación incluido.
+Permisos recomendados: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_publicar_informe_consolidado.
+
+### Regla PLA-R04: Usuario de solo consulta de datos
+Participantes que solo necesitan revisar datasets sin ejecutar modelos reciben Invitado con acceso mínimo.
+Permisos recomendados: pla_consultar_dataset.
+
+### Regla PLA-R05: Prohibición sobre pla_gestionar_parametros_modelo
+Este permiso nunca debe asignarse a perfiles operativos (Planificador, LiderOperacion) sin validación del equipo técnico. Una modificación incorrecta en los parámetros del modelo puede invalidar todas las proyecciones activas.
+
+## Casos de Referencia
+
+Caso PLA-REF-001
+Cargo: Científico de datos agropecuarios
+Tipo: AnalistaDatos
+Necesidad: Construir y mantener modelos de proyección de producción; calificar resultados; publicar informes trimestrales para la gerencia.
+Rol asignado: Admin
+Permisos: todos los permisos PLA
+
+Caso PLA-REF-002
+Cargo: Técnico de planeación operativa
+Tipo: Planificador
+Necesidad: Corre proyecciones semanales de capacidad usando modelos ya configurados. Consulta datasets históricos.
+Rol asignado: Invitado
+Permisos: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_consultar_dataset
+
+Caso PLA-REF-003
+Cargo: Gerente de operaciones regionales
+Tipo: LiderOperacion
+Necesidad: Revisa y aprueba resultados de simulación; publica informes consolidados mensuales para el comité directivo.
+Rol asignado: Invitado
+Permisos: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_publicar_informe_consolidado
+
+Caso PLA-REF-004
+Cargo: Consultor externo de planificación
+Tipo: AnalistaDatos
+Necesidad: Evalúa calidad de modelos existentes y propone ajustes de parámetros. Acceso temporal con supervisión.
+Rol asignado: Admin
+Permisos: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_calificar_proyecciones, pla_gestionar_parametros_modelo, pla_consultar_dataset, pla_publicar_informe_consolidado
+
+Caso PLA-REF-005
+Cargo: Auxiliar de datos
+Tipo: Planificador
+Necesidad: Solo descarga y revisa datasets para preparar reportes intermedios. No ejecuta modelos.
+Rol asignado: Invitado
+Permisos: pla_consultar_dataset

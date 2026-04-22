@@ -1,0 +1,46 @@
+MÓDULO FIN — Finanzas y Contabilidad (Evergreen)
+
+## Descripción General
+
+El módulo FIN de la plataforma Evergreen gestiona las operaciones financieras y contables de la cadena agroproductiva. Incluye el cálculo de tasas de intercambio para operaciones internacionales, la liquidación de impuestos bajo normativas de la Unión Europea, el registro de compradores y facturas, la gestión de cuentas contables y la generación de comprobantes de egreso.
+
+El módulo es crítico para el cumplimiento regulatorio y la integridad financiera de la organización. Todas las operaciones de escritura generan trazas de auditoría permanentes.
+
+## Tipos de Participante y Perfiles
+
+### AnalistaFinanciero
+Especialista en operaciones financieras con visión integral de cuentas, tasas e impuestos. Responsable de asegurar la correcta valoración de transacciones internacionales y el cumplimiento tributario. Requiere acceso completo al módulo FIN.
+
+### Contador
+Responsable del registro contable diario: facturas, movimientos, comprobantes. Trabaja con cuentas ya configuradas. No define política de tasas ni impuestos, pero sí registra transacciones y genera comprobantes. Acceso típico: fin_registrar_compradores_facturas, fin_consultar_cuentas_contables, fin_generar_comprobante_egreso.
+
+### AuditorFinanciero
+Revisa y evalúa la correcta aplicación de tasas e impuestos. Su rol es de control y supervisión; no registra transacciones directamente pero necesita consultar cuentas y verificar cálculos de tasas. Acceso típico: fin_calcular_tasa_intercambio, fin_calcular_tarifa_impuestos_ue, fin_consultar_cuentas_contables.
+
+## Permisos del Módulo FIN
+
+- fin_calcular_tasa_intercambio: Permite calcular la tasa de cambio vigente entre monedas para valorar transacciones internacionales. Consulta fuentes de tasas actualizadas. Uso en cotizaciones y cierres contables.
+
+- fin_calcular_tarifa_impuestos_ue: Permite calcular las tarifas de impuestos aplicables bajo normativa de la Unión Europea para exportaciones o transacciones con contrapartes europeas. Requiere criterio regulatorio.
+
+- fin_registrar_compradores_facturas: Permite ingresar al sistema los datos de compradores y sus facturas asociadas. Operación de alta frecuencia en el proceso contable diario.
+
+- fin_consultar_cuentas_contables: Permite explorar el plan de cuentas y los saldos contables vigentes. Permiso de solo lectura; esencial para cualquier usuario del módulo FIN.
+
+- fin_registrar_movimientos_contables: Permite registrar débitos y créditos en el libro mayor. Operación de alto impacto; genera trazas de auditoría inmutables. Solo para perfiles con responsabilidad contable formal.
+
+- fin_generar_comprobante_egreso: Permite generar el comprobante formal de egreso (pago a proveedor, transferencia, etc.). Documento con validez contable y legal; requiere autorización del nivel correspondiente.
+
+## Principios de Asignación de Roles en FIN
+
+1. El rol Admin en FIN se asigna a AnalistaFinanciero con responsabilidad sobre toda la operación financiera. Incluye los seis permisos del módulo.
+
+2. El rol Invitado en FIN aplica a Contadores (registro + consulta + comprobante) y a AuditoresFinancieros (cálculo de tasas/impuestos + consulta de cuentas).
+
+3. fin_registrar_movimientos_contables es el permiso de mayor riesgo en FIN; solo debe asignarse a perfiles con responsabilidad contable verificada y rol Admin.
+
+4. fin_calcular_tarifa_impuestos_ue requiere conocimiento regulatorio específico; no debe asignarse a Contadores que no trabajan con comercio exterior.
+
+5. fin_consultar_cuentas_contables es el permiso base de FIN; todo usuario activo en el módulo debería tenerlo como mínimo para poder orientarse en la estructura financiera.
+
+6. Un participante externo (proveedor, cliente) nunca debe recibir acceso de escritura en FIN. Si requiere información de pagos, debe obtenerse a través de canales externos, no del módulo directamente.

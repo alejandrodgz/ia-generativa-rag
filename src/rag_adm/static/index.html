@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asistente RAG ADM — Evergreen</title>
+  <title>Asistente RAG — Evergreen Multi-módulo</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -109,8 +109,8 @@
     button[type="submit"] {
       width: 100%;
       padding: 0.65rem;
-      background: #6366f1;
-      color: #fff;
+      background: #4338ca;
+      color: #f8fafc;
       font-size: 0.95rem;
       font-weight: 600;
       border: none;
@@ -120,8 +120,31 @@
       margin-top: 0.25rem;
     }
 
-    button[type="submit"]:hover { background: #4f46e5; }
-    button[type="submit"]:disabled { background: #a5b4fc; cursor: not-allowed; }
+    button[type="submit"]:hover { background: #3730a3; }
+    button[type="submit"]:disabled { background: #a5b4fc; color: #312e81; cursor: not-allowed; }
+
+    .secondary-button {
+      width: 100%;
+      padding: 0.65rem;
+      background: #0f766e;
+      color: #f0fdfa;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0.25rem;
+    }
+
+    .secondary-button:hover { background: #115e59; }
+
+    .secondary-button.muted {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+
+    .secondary-button.muted:hover { background: #d1d5db; }
 
     /* Result */
     #result { display: none; }
@@ -193,6 +216,44 @@
 
     .debug-box div + div { margin-top: 0.3rem; }
 
+    .status-box {
+      background: linear-gradient(135deg, #ecfeff, #f8fafc);
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 1rem;
+      font-size: 0.84rem;
+      color: #334155;
+    }
+
+    .status-box strong { color: #0f172a; }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .helper-text {
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    .mini-list {
+      margin-top: 0.5rem;
+      font-size: 0.78rem;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .mini-list span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     #error-msg {
       display: none;
       background: #fef2f2;
@@ -221,7 +282,7 @@
 <body>
 
 <header>
-  <h1>Asistente RAG — Evergreen ADM</h1>
+  <h1>Asistente RAG — Evergreen Multi-módulo</h1>
   <p>Recomendación de roles y permisos con IA generativa</p>
   <span id="llm-badge">cargando...</span>
   <span id="retriever-badge">retriever: cargando...</span>
@@ -249,6 +310,35 @@
     <button type="submit" id="submit-btn">Obtener recomendación</button>
   </form>
   <div id="error-msg"></div>
+</div>
+
+<div class="card">
+  <h2>Enriquecer contexto</h2>
+  <div class="status-box">
+    <div><strong>Documentos extra:</strong> <span id="extra-docs-count">0</span></div>
+    <div><strong>Casos sintéticos:</strong> <span id="synthetic-cases-count">0</span></div>
+    <div><strong>Estado del índice:</strong> <span id="index-health">sin cargar</span></div>
+    <div class="mini-list" id="extra-docs-list"></div>
+  </div>
+
+  <form id="doc-form">
+    <div class="field">
+      <label for="doc-title">Título del documento <span style="color:#9ca3af;font-weight:400">(opcional)</span></label>
+      <input id="doc-title" type="text" placeholder="Ej: Política regional ADM" />
+    </div>
+    <div class="field">
+      <label for="doc-modulo">Módulo del documento</label>
+      <select id="doc-modulo" required></select>
+    </div>
+    <div class="field">
+      <label for="doc-file">Archivo de contexto</label>
+      <input id="doc-file" type="file" accept=".txt,.md,.markdown,.pdf" required />
+      <div class="helper-text">Sube un archivo .txt, .md o .pdf. Se extrae texto y se reindexa automáticamente.</div>
+    </div>
+    <button type="submit" class="secondary-button" id="doc-submit-btn">Subir documento</button>
+  </form>
+
+  <div id="enrichment-msg" class="helper-text" style="margin-top:0.75rem;"></div>
 </div>
 
 <div class="card" id="result">
@@ -298,12 +388,32 @@
       <div><strong>Retrieval:</strong> <span id="res-retrieval-mode">-</span></div>
       <div><strong>Reglas recuperadas:</strong> <span id="res-reglas">-</span></div>
       <div><strong>Top-k (id:score):</strong> <span id="res-topk">-</span></div>
+      <div><strong>Documentos de apoyo:</strong> <span id="res-documentos">-</span></div>
     </div>
   </div>
 </div>
 
-<script>
+<script type="module">
   const API = '';
+
+  function setEnrichmentMessage(message, isError = false) {
+    const el = document.getElementById('enrichment-msg');
+    el.textContent = message;
+    el.style.color = isError ? '#991b1b' : '#0f766e';
+  }
+
+  async function loadEnrichmentStatus() {
+    const res = await fetch(`${API}/enrichment/status`);
+    const data = await res.json();
+
+    document.getElementById('extra-docs-count').textContent = data.extra_documents_count;
+    document.getElementById('synthetic-cases-count').textContent = data.synthetic_cases_count;
+
+    const list = document.getElementById('extra-docs-list');
+    list.innerHTML = data.extra_documents.length
+      ? data.extra_documents.slice(0, 4).map(doc => `<span>${doc.name}</span>`).join('')
+      : '<span>No hay documentos extra todavía.</span>';
+  }
 
   async function loadMetadata() {
     try {
@@ -311,14 +421,13 @@
       const data = await res.json();
 
       const modSelect = document.getElementById('modulo');
-      data.modulos_disponibles.forEach(m => {
-        modSelect.innerHTML += `<option value="${m}">${m}</option>`;
-      });
+      modSelect.innerHTML = data.modulos_disponibles.map(m => `<option value="${m}">${m}</option>`).join('');
+
+      const docModSelect = document.getElementById('doc-modulo');
+      docModSelect.innerHTML = data.modulos_disponibles.map(m => `<option value="${m}">${m}</option>`).join('');
 
       const partSelect = document.getElementById('participante');
-      data.tipos_participante_disponibles.forEach(t => {
-        partSelect.innerHTML += `<option value="${t}">${t}</option>`;
-      });
+      partSelect.innerHTML = data.tipos_participante_disponibles.map(t => `<option value="${t}">${t}</option>`).join('');
 
       const badge = document.getElementById('llm-badge');
       badge.textContent = `LLM: ${data.llm_mode === 'remote' ? 'Ollama (qwen2.5:7b)' : 'Mock (sin LLM)'}`;
@@ -327,8 +436,20 @@
 
       const retrieverBadge = document.getElementById('retriever-badge');
       retrieverBadge.textContent = `retriever: ${data.retriever_mode}`;
-      retrieverBadge.style.background = data.retriever_mode === 'vector' ? '#dcfce7' : '#fef3c7';
-      retrieverBadge.style.color = data.retriever_mode === 'vector' ? '#166534' : '#92400e';
+      if (data.retriever_mode === 'hybrid') {
+        retrieverBadge.style.background = '#dbeafe';
+        retrieverBadge.style.color = '#1d4ed8';
+      } else if (data.retriever_mode === 'vector') {
+        retrieverBadge.style.background = '#dcfce7';
+        retrieverBadge.style.color = '#166534';
+      } else {
+        retrieverBadge.style.background = '#fef3c7';
+        retrieverBadge.style.color = '#92400e';
+      }
+
+      document.getElementById('index-health').textContent = data.index_metadata_valid
+        ? `ok · ${data.extra_documents_count} docs · ${data.synthetic_cases_count} sintéticos`
+        : `pendiente · ${data.index_metadata_reason || 'sin validar'}`;
     } catch (e) {
       console.error('Error cargando metadata', e);
     }
@@ -398,6 +519,9 @@
       document.getElementById('res-topk').textContent = (data.casos_similares_score || []).length
         ? data.casos_similares_score.map(c => `${c.id}:${Number(c.score).toFixed(2)}`).join(', ')
         : 'Sin coincidencias';
+      document.getElementById('res-documentos').textContent = (data.documentos_apoyo_ref || []).length
+        ? data.documentos_apoyo_ref.join(', ')
+        : 'Sin documentos de apoyo';
 
       spinner.style.display = 'none';
       resultBody.style.display = 'block';
@@ -412,7 +536,46 @@
     }
   });
 
-  loadMetadata();
+  document.getElementById('doc-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('doc-submit-btn');
+    btn.disabled = true;
+    setEnrichmentMessage('Agregando documento y reindexando...');
+
+    try {
+      const fileInput = document.getElementById('doc-file');
+      if (!fileInput.files || !fileInput.files.length) {
+        throw new Error('Selecciona un archivo antes de subir.');
+      }
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      formData.append('modulo_asignado', document.getElementById('doc-modulo').value);
+      const customTitle = document.getElementById('doc-title').value.trim();
+      if (customTitle) {
+        formData.append('title', customTitle);
+      }
+
+      const res = await fetch(`${API}/enrichment/document-upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
+
+      document.getElementById('doc-form').reset();
+      await loadMetadata();
+      await loadEnrichmentStatus();
+      setEnrichmentMessage(`Documento agregado: ${data.file_name}`);
+    } catch (err) {
+      setEnrichmentMessage(`Error agregando documento: ${err.message}`, true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  await loadMetadata();
+  await loadEnrichmentStatus();
 </script>
 </body>
 </html>

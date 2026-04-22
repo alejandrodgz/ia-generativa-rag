@@ -11,6 +11,7 @@ class PromptBundle:
     perfil: RecommendationRequest
     reglas_relevantes: list[dict]
     casos_similares: list[dict]
+    documentos_apoyo: list[dict]
 
 
 class RolePermissionRecommender:
@@ -31,14 +32,28 @@ class RolePermissionRecommender:
     def recommend(self, request: RecommendationRequest) -> RecommendationResponse:
         reglas = self.retriever.retrieve_rules(request)
         casos = self.retriever.retrieve_similar_cases(request)
-        bundle = PromptBundle(perfil=request, reglas_relevantes=reglas, casos_similares=casos)
+        documentos_apoyo = self.retriever.retrieve_supporting_documents(request)
+        bundle = PromptBundle(
+            perfil=request,
+            reglas_relevantes=reglas,
+            casos_similares=casos,
+            documentos_apoyo=documentos_apoyo,
+        )
 
         roles_validos = self.knowledge_base.roles_validos()
         permisos_validos = self.knowledge_base.permisos_validos()
 
         decision = self.llm_client.complete(bundle, roles_validos, permisos_validos)
 
-        retrieval_mode = "vector" if self.retriever.__class__.__name__ == "VectorRetriever" else "jaccard"
+        # Detectar tipo de retriever
+        retriever_class = self.retriever.__class__.__name__
+        if retriever_class == "HybridRetriever":
+            retrieval_mode = "hybrid"
+        elif retriever_class == "VectorRetriever":
+            retrieval_mode = "vector"
+        else:
+            retrieval_mode = "jaccard"
+
         reglas_ref = [f"{regla.get('modulo', '')}:{regla.get('tipo_participante', '')}" for regla in reglas]
         casos_score = [
             {
@@ -47,6 +62,23 @@ class RolePermissionRecommender:
             }
             for caso in casos
         ]
+        documentos_apoyo_ref = [
+            str(documento.get("title") or documento.get("source_file") or documento.get("id", ""))
+            for documento in documentos_apoyo
+        ]
+
+        # Construir reranking_info si es retrieval híbrido
+        reranking_info = None
+        if retrieval_mode == "hybrid":
+            affinity_boosts_applied = sum(1 for caso in casos if caso.get("_affinity_applied", False))
+            reranking_info = {
+                "retriever_type": "hybrid",
+                "rules_source": "structured_exact_match",
+                "cases_retrieval_mode": "vector_with_reranking",
+                "affinity_boosts_applied": affinity_boosts_applied,
+                "top_k_threshold": len(casos),
+                "affinity_boost_factor": self.retriever.settings.affinity_boost_factor,
+            }
 
         return RecommendationResponse(
             rol_recomendado=decision.rol_recomendado,
@@ -57,4 +89,6 @@ class RolePermissionRecommender:
             retrieval_mode=retrieval_mode,
             reglas_recuperadas_ref=reglas_ref,
             casos_similares_score=casos_score,
+            documentos_apoyo_ref=documentos_apoyo_ref,
+            reranking_info=reranking_info,
         )

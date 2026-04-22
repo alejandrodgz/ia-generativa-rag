@@ -27,6 +27,7 @@ class MockLLMClient:
     ) -> LLMDecision:
         reglas = bundle.reglas_relevantes
         casos = bundle.casos_similares
+        documentos = bundle.documentos_apoyo
 
         rol = reglas[0]["rol_preferido"] if reglas else "Invitado"
         if rol not in roles_validos:
@@ -39,6 +40,8 @@ class MockLLMClient:
             confianza = "alto"
         elif reglas or (casos and casos[0].get("_score", 0) >= 0.2):
             confianza = "medio"
+        elif documentos and documentos[0].get("_score", 0) >= 0.2:
+            confianza = "medio"
         else:
             confianza = "bajo"
 
@@ -47,7 +50,9 @@ class MockLLMClient:
             fuentes.append(f"la politica para modulo {reglas[0]['modulo']} y participante {reglas[0]['tipo_participante']}")
         if casos:
             fuentes.append(f"{len(casos)} casos similares del historico")
-        fuentes_texto = " y ".join(fuentes) if fuentes else "las reglas base del dominio ADM"
+        if documentos:
+            fuentes.append(f"{len(documentos)} documentos de apoyo")
+        fuentes_texto = " y ".join(fuentes) if fuentes else "las reglas base del dominio seleccionado"
 
         justificacion = (
             f"Se recomienda el rol {rol} basandose en {fuentes_texto}. "

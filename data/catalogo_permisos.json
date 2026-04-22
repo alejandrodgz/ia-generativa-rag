@@ -68,5 +68,95 @@
     "nombre": "notificar_participantes",
     "modulo": "ADM",
     "descripcion": "Enviar notificaciones a participantes de una agrocadena"
+  },
+  {
+    "nombre": "dis_calcular_distancia_tiempo",
+    "modulo": "DIS",
+    "descripcion": "Calcular distancia y tiempo estimado para rutas de distribución"
+  },
+  {
+    "nombre": "dis_calcular_trayectoria_costo",
+    "modulo": "DIS",
+    "descripcion": "Calcular trayectoria óptima y costo de viaje"
+  },
+  {
+    "nombre": "dis_gestionar_pedidos",
+    "modulo": "DIS",
+    "descripcion": "Crear y actualizar pedidos de distribución"
+  },
+  {
+    "nombre": "dis_programar_transporte",
+    "modulo": "DIS",
+    "descripcion": "Programar recursos de transporte aéreo, terrestre o acuático"
+  },
+  {
+    "nombre": "dis_consultar_estado_envio",
+    "modulo": "DIS",
+    "descripcion": "Consultar estado operativo y trazabilidad de envíos"
+  },
+  {
+    "nombre": "dis_configurar_canales_comercializacion",
+    "modulo": "DIS",
+    "descripcion": "Configurar canales de comercialización vinculados a pedidos"
+  },
+  {
+    "nombre": "pla_simular_escenarios",
+    "modulo": "PLA",
+    "descripcion": "Ejecutar simulaciones sobre parámetros de planeación"
+  },
+  {
+    "nombre": "pla_ejecutar_proyeccion",
+    "modulo": "PLA",
+    "descripcion": "Lanzar proyecciones y modelos de planeación"
+  },
+  {
+    "nombre": "pla_calificar_proyecciones",
+    "modulo": "PLA",
+    "descripcion": "Calificar calidad de proyecciones con centroides y métricas"
+  },
+  {
+    "nombre": "pla_gestionar_parametros_modelo",
+    "modulo": "PLA",
+    "descripcion": "Definir y versionar parámetros de modelos de planeación"
+  },
+  {
+    "nombre": "pla_consultar_dataset",
+    "modulo": "PLA",
+    "descripcion": "Consultar datasets de entrada para simulación y proyección"
+  },
+  {
+    "nombre": "pla_publicar_informe_consolidado",
+    "modulo": "PLA",
+    "descripcion": "Publicar salida consolidada de simulaciones y clasificación"
+  },
+  {
+    "nombre": "fin_calcular_tasa_intercambio",
+    "modulo": "FIN",
+    "descripcion": "Calcular tasa de intercambio para operaciones financieras"
+  },
+  {
+    "nombre": "fin_calcular_tarifa_impuestos_ue",
+    "modulo": "FIN",
+    "descripcion": "Calcular tarifas de impuesto aplicables en la UE"
+  },
+  {
+    "nombre": "fin_registrar_compradores_facturas",
+    "modulo": "FIN",
+    "descripcion": "Registrar compradores y facturas de venta"
+  },
+  {
+    "nombre": "fin_consultar_cuentas_contables",
+    "modulo": "FIN",
+    "descripcion": "Consultar estructura y saldos de cuentas contables"
+  },
+  {
+    "nombre": "fin_registrar_movimientos_contables",
+    "modulo": "FIN",
+    "descripcion": "Registrar movimientos contables y centros de costos"
+  },
+  {
+    "nombre": "fin_generar_comprobante_egreso",
+    "modulo": "FIN",
+    "descripcion": "Generar comprobantes de egreso para costos y gastos"
   }
 ]

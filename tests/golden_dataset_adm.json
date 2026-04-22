@@ -1,0 +1,122 @@
+[
+  {
+    "id": "GOLD-001",
+    "cargo": "Coordinador de agrocadena",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Productor",
+    "descripcion_adicional": "Consulta etapas y seguimiento de cadenas productivas",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_etapas"],
+    "stability_group": "productor_tracking"
+  },
+  {
+    "id": "GOLD-002",
+    "cargo": "Gestor de productores",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Productor",
+    "descripcion_adicional": "Hace control de avance por etapas y trazabilidad",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_etapas"],
+    "stability_group": "productor_tracking"
+  },
+  {
+    "id": "GOLD-003",
+    "cargo": "Analista de soporte ADM",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Administrador",
+    "descripcion_adicional": "Apoya gestion de usuarios y configuracion de permisos",
+    "expected_role": "Admin",
+    "must_have_permissions": ["gestionar_usuarios", "configurar_permisos", "ver_agrocadenas"],
+    "stability_group": "admin_ops"
+  },
+  {
+    "id": "GOLD-004",
+    "cargo": "Director administrativo",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Administrador",
+    "descripcion_adicional": "Supervisa accesos, usuarios y permisos globales",
+    "expected_role": "Admin",
+    "must_have_permissions": ["gestionar_usuarios", "configurar_permisos", "editar_agrocadenas"],
+    "stability_group": "admin_ops"
+  },
+  {
+    "id": "GOLD-005",
+    "cargo": "Enlace comercial",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Comercializador",
+    "descripcion_adicional": "Consulta reportes y estado de las agrocadenas",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm"],
+    "stability_group": "comercial_reportes"
+  },
+  {
+    "id": "GOLD-006",
+    "cargo": "Analista comercial de ventas",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Comercializador",
+    "descripcion_adicional": "Analiza resultados y exporta reportes",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_etapas", "ver_reportes_adm"],
+    "stability_group": "comercial_reportes"
+  },
+  {
+    "id": "GOLD-007",
+    "cargo": "Responsable de logistica",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Distribuidor",
+    "descripcion_adicional": "Monitorea trazabilidad durante distribucion",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad"],
+    "stability_group": "distribuidor_trazabilidad"
+  },
+  {
+    "id": "GOLD-008",
+    "cargo": "Representante de distribucion",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Distribuidor",
+    "descripcion_adicional": "Consulta avance de etapas y cadena logistica",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_etapas", "ver_trazabilidad"],
+    "stability_group": "distribuidor_trazabilidad"
+  },
+  {
+    "id": "GOLD-009",
+    "cargo": "Inspector de calidad",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Auditor",
+    "descripcion_adicional": "Audita accesos y cumplimiento de procesos",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_reportes_adm", "auditar_accesos"],
+    "stability_group": "auditor_control"
+  },
+  {
+    "id": "GOLD-010",
+    "cargo": "Jefe de control interno",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Auditor",
+    "descripcion_adicional": "Revisa reportes y trazabilidad de cambios",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "ver_reportes_adm", "auditar_accesos"],
+    "stability_group": "auditor_control"
+  },
+  {
+    "id": "GOLD-011",
+    "cargo": "Tecnico de campo",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Tecnico",
+    "descripcion_adicional": "Registra avances y notifica participantes",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "editar_etapas", "notificar_participantes"],
+    "stability_group": "tecnico_campo"
+  },
+  {
+    "id": "GOLD-012",
+    "cargo": "Especialista en trazabilidad",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Tecnico",
+    "descripcion_adicional": "Documenta trazabilidad de productos y etapas",
+    "expected_role": "Invitado",
+    "must_have_permissions": ["ver_agrocadenas", "editar_etapas", "aprobar_etapas"],
+    "stability_group": "tecnico_campo"
+  }
+]

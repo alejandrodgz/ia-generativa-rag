@@ -24,6 +24,8 @@ class Retriever(Protocol):
 
     def retrieve_similar_cases(self, request: RecommendationRequest) -> list[dict]: ...
 
+    def retrieve_supporting_documents(self, request: RecommendationRequest) -> list[dict]: ...
+
 
 def _normalize(text: str) -> str:
     normalized = unicodedata.normalize("NFKD", text.lower())
@@ -76,6 +78,10 @@ class JaccardRetriever:
                 scores.append((score, case))
         scores.sort(key=lambda item: item[0], reverse=True)
         return [case | {"_score": score} for score, case in scores[:3]]
+
+    def retrieve_supporting_documents(self, request: RecommendationRequest) -> list[dict]:
+        _ = request
+        return []
 
 
 class VectorRetriever:
@@ -145,6 +151,112 @@ class VectorRetriever:
             similarity = 1.0 / (1.0 + float(distance))
             result.append(payload | {"_score": similarity})
         return result[:3]
+
+    def retrieve_supporting_documents(self, request: RecommendationRequest) -> list[dict]:
+        query = (
+            f"Contexto de apoyo para cargo {request.cargo}. Modulo {request.modulo_asignado}. "
+            f"Tipo {request.tipo_participante}. Descripcion {request.descripcion_adicional or ''}."
+        )
+        docs_and_scores = self.vector_store.similarity_search_with_score(
+            query,
+            k=3,
+            filter={
+                "$and": [
+                    {"source_type": {"$eq": "extra_doc"}},
+                    {"modulo": {"$eq": request.modulo_asignado}},
+                ]
+            },
+        )
+
+        if not docs_and_scores:
+            docs_and_scores = self.vector_store.similarity_search_with_score(
+                query,
+                k=3,
+                filter={
+                    "$and": [
+                        {"source_type": {"$eq": "extra_doc"}},
+                        {"modulo": {"$eq": "GLOBAL"}},
+                    ]
+                },
+            )
+
+        result: list[dict] = []
+        for doc, distance in docs_and_scores:
+            payload = _doc_payload(doc)
+            if not payload:
+                continue
+            similarity = 1.0 / (1.0 + float(distance))
+            result.append(payload | {"_score": similarity})
+        return result[:3]
+
+
+class HybridRetriever:
+    """Retrieval hibrido: reglas exactas + casos vectoriales con reranking por afinidad.
+
+    Estrategia:
+    - Reglas: filtrado exacto por (modulo, tipo_participante) en datos estructurados
+    - Casos: busqueda vectorial semantica, luego rerank por afinidad de tipo_participante
+
+    Fase 2 implementation: mejora consistencia en dominios estructurados como ADM.
+    """
+
+    def __init__(
+        self,
+        jaccard: JaccardRetriever,
+        vector: VectorRetriever,
+        settings: object,  # HybridSettings from settings.py
+    ) -> None:
+        self.jaccard = jaccard
+        self.vector = vector
+        self.settings = settings  # type: HybridSettings
+
+    def retrieve_rules(self, request: RecommendationRequest) -> list[dict]:
+        """Filtrado exacto de reglas por modulo + tipo_participante.
+
+        Si settings.rules_exact_match_only=true (default), usa JaccardRetriever.
+        """
+        return self.jaccard.retrieve_rules(request)
+
+    def retrieve_similar_cases(self, request: RecommendationRequest) -> list[dict]:
+        """Busqueda vectorial de casos + reranking por afinidad de tipo_participante.
+
+        Flujo:
+        1. Llamar a VectorRetriever para obtener top-k casos por similitud
+        2. Rerank: multiplicar score por affinity_boost_factor si tipo_participante coincide
+        3. Re-ordenar y filtrar por affinity_threshold
+        4. Retornar top-k rerankeados
+        """
+        # Obtener casos de VectorRetriever
+        cases = self.vector.retrieve_similar_cases(request)
+        if not cases:
+            return cases
+
+        # Reranking por afinidad
+        reranked = []
+        target_tipo = _normalize(request.tipo_participante)
+
+        for case in cases:
+            original_score = float(case.get("_score", 0.0))
+            case_tipo = _normalize(case.get("tipo_participante", ""))
+
+            # Aplicar boost si hay afinidad
+            if case_tipo == target_tipo:
+                boosted_score = original_score * self.settings.affinity_boost_factor
+            else:
+                boosted_score = original_score
+
+            # Filtrar por threshold
+            if boosted_score >= self.settings.affinity_threshold:
+                reranked.append(case | {"_score": boosted_score, "_affinity_applied": case_tipo == target_tipo})
+
+        # Re-ordenar por score descendente
+        reranked.sort(key=lambda c: c.get("_score", 0.0), reverse=True)
+
+        # Limitar a k_similar_cases
+        return reranked[: self.settings.k_similar_cases]
+
+    def retrieve_supporting_documents(self, request: RecommendationRequest) -> list[dict]:
+        return self.vector.retrieve_supporting_documents(request)
 
 
 def _doc_payload(doc: object) -> dict | None:

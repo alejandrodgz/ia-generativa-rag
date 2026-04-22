@@ -220,5 +220,130 @@
       "ver_agrocadenas", "ver_etapas", "editar_etapas",
       "aprobar_etapas", "ver_trazabilidad"
     ]
+  },
+  {
+    "id": "CFG-DIS-001",
+    "cargo": "Coordinador de despacho multimodal",
+    "modulo_asignado": "DIS",
+    "tipo_participante": "CoordinadorLogistico",
+    "descripcion_adicional": "Planifica rutas y costos para transporte terrestre, aéreo y acuático.",
+    "rol": "Admin",
+    "permisos": [
+      "dis_calcular_distancia_tiempo",
+      "dis_calcular_trayectoria_costo",
+      "dis_gestionar_pedidos",
+      "dis_programar_transporte",
+      "dis_consultar_estado_envio",
+      "dis_configurar_canales_comercializacion"
+    ]
+  },
+  {
+    "id": "CFG-DIS-002",
+    "cargo": "Operador de ruta regional",
+    "modulo_asignado": "DIS",
+    "tipo_participante": "Transportista",
+    "descripcion_adicional": "Consulta distancia y estado de envíos para ejecutar entregas.",
+    "rol": "Invitado",
+    "permisos": [
+      "dis_calcular_distancia_tiempo",
+      "dis_calcular_trayectoria_costo",
+      "dis_consultar_estado_envio"
+    ]
+  },
+  {
+    "id": "CFG-DIS-003",
+    "cargo": "Analista de servicio al cliente logístico",
+    "modulo_asignado": "DIS",
+    "tipo_participante": "ClienteInterno",
+    "descripcion_adicional": "Da seguimiento de pedidos y tiempos estimados de entrega.",
+    "rol": "Invitado",
+    "permisos": [
+      "dis_calcular_distancia_tiempo",
+      "dis_consultar_estado_envio"
+    ]
+  },
+  {
+    "id": "CFG-PLA-001",
+    "cargo": "Especialista de analítica de planeación",
+    "modulo_asignado": "PLA",
+    "tipo_participante": "AnalistaDatos",
+    "descripcion_adicional": "Configura parámetros del modelo y publica informes consolidados.",
+    "rol": "Admin",
+    "permisos": [
+      "pla_simular_escenarios",
+      "pla_ejecutar_proyeccion",
+      "pla_calificar_proyecciones",
+      "pla_gestionar_parametros_modelo",
+      "pla_consultar_dataset",
+      "pla_publicar_informe_consolidado"
+    ]
+  },
+  {
+    "id": "CFG-PLA-002",
+    "cargo": "Planificador operativo",
+    "modulo_asignado": "PLA",
+    "tipo_participante": "Planificador",
+    "descripcion_adicional": "Ejecuta simulaciones y proyecciones para capacidad semanal.",
+    "rol": "Invitado",
+    "permisos": [
+      "pla_simular_escenarios",
+      "pla_ejecutar_proyeccion",
+      "pla_consultar_dataset"
+    ]
+  },
+  {
+    "id": "CFG-PLA-003",
+    "cargo": "Líder de operación táctica",
+    "modulo_asignado": "PLA",
+    "tipo_participante": "LiderOperacion",
+    "descripcion_adicional": "Revisa resultados de simulación y salida consolidada.",
+    "rol": "Invitado",
+    "permisos": [
+      "pla_simular_escenarios",
+      "pla_ejecutar_proyeccion",
+      "pla_publicar_informe_consolidado"
+    ]
+  },
+  {
+    "id": "CFG-FIN-001",
+    "cargo": "Analista financiero corporativo",
+    "modulo_asignado": "FIN",
+    "tipo_participante": "AnalistaFinanciero",
+    "descripcion_adicional": "Gestiona tasas de intercambio, cuentas contables y comprobantes.",
+    "rol": "Admin",
+    "permisos": [
+      "fin_calcular_tasa_intercambio",
+      "fin_calcular_tarifa_impuestos_ue",
+      "fin_registrar_compradores_facturas",
+      "fin_consultar_cuentas_contables",
+      "fin_registrar_movimientos_contables",
+      "fin_generar_comprobante_egreso"
+    ]
+  },
+  {
+    "id": "CFG-FIN-002",
+    "cargo": "Contador de gestión",
+    "modulo_asignado": "FIN",
+    "tipo_participante": "Contador",
+    "descripcion_adicional": "Registra facturas, consulta cuentas y genera egresos.",
+    "rol": "Invitado",
+    "permisos": [
+      "fin_registrar_compradores_facturas",
+      "fin_consultar_cuentas_contables",
+      "fin_generar_comprobante_egreso"
+    ]
+  },
+  {
+    "id": "CFG-FIN-003",
+    "cargo": "Auditor de cumplimiento tributario",
+    "modulo_asignado": "FIN",
+    "tipo_participante": "AuditorFinanciero",
+    "descripcion_adicional": "Evalúa tasas e impuestos aplicables con enfoque de control.",
+    "rol": "Invitado",
+    "permisos": [
+      "fin_calcular_tasa_intercambio",
+      "fin_calcular_tarifa_impuestos_ue",
+      "fin_consultar_cuentas_contables"
+    ]
   }
 ]

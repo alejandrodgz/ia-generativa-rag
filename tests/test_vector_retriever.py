@@ -24,6 +24,7 @@ def _vector_settings(tmp_path: Path) -> Settings:
         embedding_model="sentence-transformers/all-MiniLM-L6-v2",
         knowledge_docs_path=None,
         vector_rebuild_index=True,
+        vector_rebuild_policy="full",
     )
 
 
