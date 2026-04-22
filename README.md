@@ -117,7 +117,24 @@ VECTOR_REBUILD_INDEX=false \
 python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
 ```
 
-### Opcion C. Hybrid + Ollama (recomendado para presentacion)
+### Opcion C. Vector + Ollama
+
+Si quieres modo vectorial con LLM local (Ollama), este es el equivalente al comando hybrid:
+
+```bash
+LLM_API_KEY=ollama \
+LLM_BASE_URL=http://127.0.0.1:11434/v1 \
+LLM_MODEL=qwen2.5:7b \
+RETRIEVER_MODE=vector \
+VECTOR_REBUILD_INDEX=false \
+python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
+```
+
+Cambio clave frente a hybrid:
+- `RETRIEVER_MODE` pasa de `hybrid` a `vector`
+- se eliminan las variables `HYBRID_*`
+
+### Opcion D. Hybrid + Ollama (recomendado para presentacion)
 
 1. Levantar Ollama:
 
