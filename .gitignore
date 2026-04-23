@@ -33,3 +33,8 @@ secrets/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Vector index / ChromaDB artifacts
+*.sqlite3
+*.bin
+data/chroma_db/
