@@ -1,0 +1,31 @@
+CASO DE REFUERZO - PLA - AUDITOR DE CULTIVOS
+
+Objetivo: reforzar la asignacion de rol y permisos para perfiles de auditoria operativa en el modulo PLA.
+
+Contexto funcional:
+En el modulo PLA (Planeacion), el perfil LiderOperacion revisa resultados de simulaciones y proyecciones para validar decisiones operativas. Su funcion principal es control operativo y seguimiento, no la administracion tecnica del modelo.
+
+Regla recomendada para este perfil:
+Si modulo_asignado = PLA y tipo_participante = LiderOperacion, asignar rol Invitado.
+
+Permisos recomendados para LiderOperacion en PLA:
+- pla_simular_escenarios
+- pla_ejecutar_proyeccion
+- pla_publicar_informe_consolidado
+
+Permisos que no se recomiendan para este perfil:
+- pla_gestionar_parametros_modelo
+- pla_calificar_proyecciones
+
+Justificacion de control:
+El rol LiderOperacion necesita visibilidad y capacidad de ejecutar simulaciones/proyecciones para tomar decisiones tacticas, pero no debe modificar la parametrizacion tecnica del modelo. Esto reduce riesgo de alteraciones metodologicas y mantiene separacion de responsabilidades.
+
+Caso tipo:
+Cargo: Auditor de Cultivos
+Modulo: PLA
+Tipo de participante: LiderOperacion
+Rol esperado: Invitado
+Permisos esperados: pla_simular_escenarios, pla_ejecutar_proyeccion, pla_publicar_informe_consolidado
+
+Nota de uso:
+Este documento debe priorizarse como contexto de apoyo para perfiles de auditoria de cultivos en planeacion operacional.

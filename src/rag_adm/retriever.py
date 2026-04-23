@@ -89,7 +89,34 @@ class VectorRetriever:
 
     def __init__(self, knowledge_base: KnowledgeBase, settings: Settings, base_path: Path) -> None:
         self.knowledge_base = knowledge_base
+        self.settings = settings
+        self.base_path = base_path
         self.vector_store = build_or_load_vector_store(knowledge_base, settings, base_path)
+
+    def _is_missing_collection_error(self, exc: Exception) -> bool:
+        message = str(exc).lower()
+        return "collection" in message and "does not exist" in message
+
+    def _reload_vector_store(self) -> None:
+        self.vector_store = build_or_load_vector_store(self.knowledge_base, self.settings, self.base_path)
+
+    def _safe_similarity_search(self, query: str, *, k: int, filter: dict) -> list[object]:
+        try:
+            return self.vector_store.similarity_search(query, k=k, filter=filter)
+        except Exception as exc:
+            if not self._is_missing_collection_error(exc):
+                raise
+            self._reload_vector_store()
+            return self.vector_store.similarity_search(query, k=k, filter=filter)
+
+    def _safe_similarity_search_with_score(self, query: str, *, k: int, filter: dict) -> list[tuple[object, float]]:
+        try:
+            return self.vector_store.similarity_search_with_score(query, k=k, filter=filter)
+        except Exception as exc:
+            if not self._is_missing_collection_error(exc):
+                raise
+            self._reload_vector_store()
+            return self.vector_store.similarity_search_with_score(query, k=k, filter=filter)
 
     def retrieve_rules(self, request: RecommendationRequest) -> list[dict]:
         query = (
@@ -97,7 +124,7 @@ class VectorRetriever:
             f"{request.modulo_asignado} y tipo de participante {request.tipo_participante}."
         )
 
-        docs = self.vector_store.similarity_search(
+        docs = self._safe_similarity_search(
             query,
             k=6,
             filter={
@@ -119,7 +146,7 @@ class VectorRetriever:
         if rules:
             return rules
 
-        fallback_docs = self.vector_store.similarity_search(
+        fallback_docs = self._safe_similarity_search(
             query,
             k=3,
             filter={"source_type": {"$eq": "regla"}},
@@ -132,7 +159,7 @@ class VectorRetriever:
             f"Tipo {request.tipo_participante}. Descripcion {request.descripcion_adicional or ''}."
         )
 
-        docs_and_scores = self.vector_store.similarity_search_with_score(
+        docs_and_scores = self._safe_similarity_search_with_score(
             query,
             k=4,
             filter={
@@ -157,7 +184,7 @@ class VectorRetriever:
             f"Contexto de apoyo para cargo {request.cargo}. Modulo {request.modulo_asignado}. "
             f"Tipo {request.tipo_participante}. Descripcion {request.descripcion_adicional or ''}."
         )
-        docs_and_scores = self.vector_store.similarity_search_with_score(
+        docs_and_scores = self._safe_similarity_search_with_score(
             query,
             k=3,
             filter={
@@ -169,7 +196,7 @@ class VectorRetriever:
         )
 
         if not docs_and_scores:
-            docs_and_scores = self.vector_store.similarity_search_with_score(
+            docs_and_scores = self._safe_similarity_search_with_score(
                 query,
                 k=3,
                 filter={

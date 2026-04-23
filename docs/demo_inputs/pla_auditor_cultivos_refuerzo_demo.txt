@@ -1,0 +1,25 @@
+REFUERZO DEMO - PLA - AUDITOR DE CULTIVOS
+
+Escenario:
+- modulo_asignado: PLA
+- tipo_participante: LiderOperacion
+- cargo de ejemplo: Auditor de Cultivos
+
+Regla operativa recomendada:
+Para perfiles de auditoria operativa en planeacion (LiderOperacion), el rol sugerido debe ser Invitado.
+
+Permisos recomendados:
+1) pla_simular_escenarios
+2) pla_ejecutar_proyeccion
+3) pla_publicar_informe_consolidado
+
+Permisos NO recomendados para este perfil:
+1) pla_gestionar_parametros_modelo
+2) pla_calificar_proyecciones
+
+Razon de control:
+El perfil de auditoria necesita ejecutar y revisar resultados para seguimiento tactico, pero no debe alterar parametros del modelo de planeacion.
+
+Salida esperada en recomendacion:
+- rol_recomendado: Invitado
+- permisos_recomendados: enfocados en simulacion, proyeccion y publicacion consolidada.

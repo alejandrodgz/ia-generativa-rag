@@ -365,7 +365,7 @@
   </div>
   <div id="result-body">
     <div class="result-row">
-      <span class="result-label">Rol recomendado</span>
+      <span class="result-label">Rol dentro del sistema</span>
       <span class="result-value"><span id="res-rol" class="badge"></span></span>
     </div>
     <div class="result-row">
@@ -395,6 +395,14 @@
 
 <script type="module">
   const API = '';
+  const ROLE_DISPLAY_LABEL = {
+    Admin: 'Gestor del sistema',
+    Invitado: 'Usuario operativo',
+  };
+
+  function getRoleDisplayLabel(role) {
+    return ROLE_DISPLAY_LABEL[role] || role;
+  }
 
   function setEnrichmentMessage(message, isError = false) {
     const el = document.getElementById('enrichment-msg');
@@ -493,7 +501,8 @@
       const data = await res.json();
 
       const rolEl = document.getElementById('res-rol');
-      rolEl.textContent = data.rol_recomendado;
+      rolEl.textContent = getRoleDisplayLabel(data.rol_recomendado);
+      rolEl.title = `Código interno: ${data.rol_recomendado}`;
       rolEl.className = `badge badge-${data.rol_recomendado.toLowerCase()}`;
 
       const confEl = document.getElementById('res-confianza');

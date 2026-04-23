@@ -1,11 +1,11 @@
 {
-  "generated_at_utc": "2026-04-22T19:02:55.783278+00:00",
+  "generated_at_utc": "2026-04-22T20:28:58.623646+00:00",
   "collection_name": "adm_knowledge_base",
   "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-  "collection_size": 83,
+  "collection_size": 84,
   "rebuild_mode": "full",
   "source_snapshot": {
-    "source_count": 10,
+    "source_count": 11,
     "sources": [
       {
         "path": "data/politicas_acceso.json",
@@ -56,9 +56,14 @@
         "path": "data/user_knowledge/20260422000005-FIN-reglas-asignacion-roles.txt",
         "sha256": "496fd3ad073e378ac4a5e6d94ec7273fffe7beeb22c352e229c5efcc65acb939",
         "size_bytes": 3627
+      },
+      {
+        "path": "data/user_knowledge/20260422193000-PLA-auditor-cultivos-lider-operacion.txt",
+        "sha256": "fc50cfef6feb4d8a7df35ccfb68c3dd67d18f45d5c4f97e69e6ec1011247bc6a",
+        "size_bytes": 1438
       }
     ],
-    "combined_sha256": "27ed5497fb429c1aeec26f4d98f86209b658e0dfb91421bcb8be0872769575d6"
+    "combined_sha256": "41496be83516c81f929a7b6f4c8e85adbe7c8790737e7000c1f8d48fb7a46299"
   },
   "schema_version": 1
 }
