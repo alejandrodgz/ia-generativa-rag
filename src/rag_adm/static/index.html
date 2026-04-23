@@ -321,7 +321,6 @@
   <h2>Enriquecer contexto</h2>
   <div class="status-box">
     <div><strong>Documentos extra:</strong> <span id="extra-docs-count">0</span></div>
-    <div><strong>Casos sintéticos:</strong> <span id="synthetic-cases-count">0</span></div>
     <div><strong>Estado del índice:</strong> <span id="index-health">sin cargar</span></div>
     <div class="mini-list" id="extra-docs-list"></div>
   </div>
@@ -424,7 +423,6 @@
     const data = await res.json();
 
     document.getElementById('extra-docs-count').textContent = data.extra_documents_count;
-    document.getElementById('synthetic-cases-count').textContent = data.synthetic_cases_count;
 
     const list = document.getElementById('extra-docs-list');
     list.innerHTML = data.extra_documents.length
@@ -472,7 +470,7 @@
       }
 
       document.getElementById('index-health').textContent = data.index_metadata_valid
-        ? `ok · ${data.extra_documents_count} docs · ${data.synthetic_cases_count} sintéticos`
+        ? `ok · ${data.extra_documents_count} docs`
         : `pendiente · ${data.index_metadata_reason || 'sin validar'}`;
     } catch (e) {
       console.error('Error cargando metadata', e);
