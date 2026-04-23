@@ -171,7 +171,10 @@ def metadata() -> MetadataResponse:
 @app.post("/recomendar-rol", response_model=RecommendationResponse)
 def recomendar_rol(payload: RecommendationRequest) -> RecommendationResponse:
     settings = get_settings()
-    llm_client = build_llm_client(settings, provider=payload.llm_provider)
+    try:
+        llm_client = build_llm_client(settings, provider=payload.llm_provider)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return get_recommender().recommend(payload, llm_client=llm_client)
 
 

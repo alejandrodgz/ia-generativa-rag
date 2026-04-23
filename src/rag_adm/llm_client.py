@@ -11,6 +11,23 @@ from .recommender import PromptBundle
 from .settings import Settings
 
 
+def _missing_provider_fields(
+    provider: str,
+    api_key: str | None,
+    base_url: str | None,
+    model: str | None,
+) -> list[str]:
+    missing: list[str] = []
+    provider_normalized = provider.strip().lower()
+    if provider_normalized == "huggingface" and not api_key:
+        missing.append("api_key")
+    if not base_url:
+        missing.append("base_url")
+    if not model:
+        missing.append("model")
+    return missing
+
+
 @dataclass(slots=True)
 class MockLLMClient:
     """Cliente determinístico para pruebas y modo mock.
@@ -71,7 +88,7 @@ class RemoteLLMClient:
     def __init__(
         self,
         settings: Settings,
-        api_key: str,
+        api_key: str | None,
         base_url: str,
         model: str,
         fallback: MockLLMClient | None = None,
@@ -98,10 +115,9 @@ class RemoteLLMClient:
         return self.fallback.complete(bundle, roles_validos, permisos_validos)
 
     def _call_remote(self, messages: list[PromptMessage]) -> str:
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
         payload = {
             "model": self.model,
             "messages": [message.model_dump() for message in messages],
@@ -118,7 +134,16 @@ class RemoteLLMClient:
 def build_llm_client(settings: Settings, provider: str | None = None) -> MockLLMClient | RemoteLLMClient:
     selected_provider = (provider or settings.llm_default_provider).strip().lower()
     api_key, base_url, model = settings.resolve_provider_config(selected_provider)
-    if api_key and base_url and model:
+    if provider is not None:
+        missing = _missing_provider_fields(selected_provider, api_key, base_url, model)
+        if missing:
+            fields = ", ".join(missing)
+            raise ValueError(
+                f"El proveedor LLM '{selected_provider}' no esta configurado completamente ({fields}). "
+                "Revisa las variables de entorno del proveedor seleccionado."
+            )
+    missing_for_runtime = _missing_provider_fields(selected_provider, api_key, base_url, model)
+    if not missing_for_runtime:
         return RemoteLLMClient(settings, api_key=api_key, base_url=base_url, model=model)
     return MockLLMClient()
 

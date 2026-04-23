@@ -62,3 +62,19 @@ def test_recomendar_rol_endpoint_for_dis_module() -> None:
     body = response.json()
     assert body["rol_recomendado"] == "Invitado"
     assert "dis_calcular_distancia_tiempo" in body["permisos_recomendados"]
+
+
+def test_recomendar_rol_endpoint_rejects_unconfigured_huggingface(monkeypatch) -> None:
+    monkeypatch.delenv("HUGGINGFACE_API_KEY", raising=False)
+
+    payload = {
+        "cargo": "Analista de soporte ADM",
+        "modulo_asignado": "ADM",
+        "tipo_participante": "Administrador",
+        "llm_provider": "huggingface",
+    }
+
+    response = client.post("/recomendar-rol", json=payload)
+
+    assert response.status_code == 400
+    assert "no esta configurado completamente" in response.json()["detail"]
