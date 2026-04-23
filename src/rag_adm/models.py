@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 class RecommendationRequest(BaseModel):
     cargo: str = Field(min_length=1, max_length=100)
     modulo_asignado: str = Field(min_length=1, max_length=20)
-    tipo_participante: str = Field(min_length=1, max_length=100)
     descripcion_adicional: str | None = Field(default=None, max_length=500)
     llm_provider: Literal["ollama", "huggingface"] | None = None
 
@@ -16,6 +15,7 @@ class RecommendationResponse(BaseModel):
     permisos_recomendados: list[str]
     justificacion: str
     nivel_confianza: Literal["alto", "medio", "bajo"]
+    tipo_participante_inferido: str | None = None
     casos_similares_ref: list[str] = Field(default_factory=list)
     retrieval_mode: Literal["jaccard", "vector", "hybrid"] | None = None
     reglas_recuperadas_ref: list[str] = Field(default_factory=list)

@@ -86,6 +86,7 @@ class RolePermissionRecommender:
             permisos_recomendados=decision.permisos_recomendados,
             justificacion=decision.justificacion,
             nivel_confianza=decision.nivel_confianza,
+            tipo_participante_inferido=decision.tipo_participante_inferido,
             casos_similares_ref=[caso["id"] for caso in casos],
             retrieval_mode=retrieval_mode,
             reglas_recuperadas_ref=reglas_ref,

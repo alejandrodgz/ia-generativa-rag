@@ -10,17 +10,17 @@
 
 > "El primer diseño que tomamos fue definir qué sabe el sistema antes de que alguien le pregunte algo. Esa decisión es la más importante de toda la arquitectura.
 >
-> Sin una base de conocimiento propia, el LLM respondería de forma genérica — y en un sistema de gestión agrícola como Evergreen, una recomendación genérica no sirve: podría asignarle permisos de administrador a alguien que solo debería leer reportes, o peor, denegar acceso a alguien que lo necesita para operar.
+> En términos de IA, el problema no es solo "respuesta genérica"; el problema es **falta de grounding**. Un LLM puro optimiza probabilidad de siguiente token, no cumplimiento de política interna. Si no lo anclamos a evidencia del dominio, aumenta el riesgo de alucinación normativa: proponer permisos plausibles en lenguaje, pero incorrectos para la operación real.
 >
 > Por eso estructuramos la base en tres archivos con responsabilidades distintas y complementarias.
 >
-> El primero, `politicas_acceso.json`, contiene **16 reglas de negocio** que cruzan módulo con tipo de participante — cuatro módulos del sistema Evergreen: ADM, DIS, PLA y FIN — y **16 tipos de participante** distintos, desde Productor hasta Auditor Financiero. Estas reglas definen qué puede hacer cada perfil.
+> El primero, `politicas_acceso.json`, contiene **16 reglas de negocio** que cruzan módulo con tipo de participante. Aquí modelamos la capa **normativa**: restricciones de acceso, límites y compatibilidades. Es la parte prescriptiva del sistema.
 >
-> El segundo, `catalogo_permisos.json`, tiene los **32 permisos** del sistema, cada uno con nombre técnico, módulo al que pertenece y descripción en lenguaje natural. Es el vocabulario controlado — garantiza que el sistema siempre use la misma terminología al recomendar.
+> El segundo, `catalogo_permisos.json`, tiene los **32 permisos** del sistema. Esta es la capa **ontológica**: define el vocabulario controlado para evitar ambigüedad semántica entre cómo habla el usuario y cómo se representan permisos en backend.
 >
-> El tercero, `historico_configuraciones.json`, guarda **29 casos reales** de asignaciones pasadas. Son los precedentes — cuando el sistema recomienda algo, puede apoyarse en situaciones similares que ya ocurrieron y funcionaron.
+> El tercero, `historico_configuraciones.json`, guarda **29 casos reales** de asignaciones pasadas. Esta es la capa **empírica**: precedentes observados que permiten razonar por analogía y mejorar consistencia inter-caso.
 >
-> Todo está en la carpeta `data/` del repositorio, versionado junto al código. Eso significa que la base de conocimiento es auditable, reproducible y mejorable de forma controlada."
+> Con estas tres capas, el sistema no solo "responde": **constriñe, normaliza y justifica**. Además, al estar versionado en `data/`, podemos auditar cambios de política, reproducir decisiones y trazar por qué una recomendación cambió entre versiones."
 
 ---
 
@@ -31,15 +31,15 @@
 >
 > Las entradas son: el **cargo** organizacional del usuario nuevo, el **módulo de Evergreen** al que va a pertenecer, el **tipo de participante** dentro de la agrocadena — que puede ser Productor, Distribuidor, Supervisor, entre otros — y una **descripción adicional** opcional que da contexto libre sobre sus responsabilidades.
 >
-> Con eso, el procesador central ejecuta lo que llamamos el ciclo RAG en tres pasos simultáneos.
+> Con eso, el procesador central ejecuta un pipeline RAG con recuperación especializada por fuente.
 >
-> Primero, **recupera las reglas aplicables**: filtra las 16 reglas por el módulo y tipo de participante específico del caso. Segundo, **busca casos similares**: hace una búsqueda semántica en los 29 históricos para encontrar los precedentes más cercanos usando vectores de embeddings — no busca por palabras exactas, busca por significado. Tercero, **recupera documentos de apoyo**: cualquier documento adicional que haya sido subido por el equipo para enriquecer el contexto.
+> Primero, **recupera reglas aplicables** mediante filtros estructurados de módulo y tipo de participante. Segundo, **recupera casos similares** con búsqueda semántica vectorial sobre embeddings para aproximar vecindad conceptual, no coincidencia lexical. Tercero, **recupera documentos de soporte** cargados por usuarios para incorporar conocimiento operativo reciente.
 >
-> Los tres resultados se unen en un único `Unified RAG Context` — la hoja de evidencia que recibe el LLM. El modelo no decide en el vacío: decide con contexto específico del negocio Evergreen.
+> Las tres recuperaciones se fusionan en el `Unified RAG Context`, que funciona como contexto de evidencia y frontera de decisión del modelo. En otras palabras, desacoplamos "conocimiento de dominio" de "capacidad generativa".
 >
 > Las salidas son: el **rol recomendado**, la **lista de permisos** asociados, la **justificación** en texto del razonamiento, el **nivel de confianza** numérico, y las **referencias a casos similares** para trazabilidad.
 >
-> Un punto de diseño importante: si el `nivel_confianza` es bajo, el sistema lo señala explícitamente y recomienda revisión manual obligatoria. Esa salvaguarda la definimos desde el inicio para que el sistema nunca imponga una decisión que no puede sostener."
+> Un punto técnico clave es la política de fallback: si el `nivel_confianza` cae bajo umbral, el sistema marca el caso para revisión manual obligatoria. Esto evita automatización ciega y convierte al asistente en un sistema de soporte a decisión, no en un decisor autónomo."
 
 ---
 
@@ -48,22 +48,22 @@
 
 > "Este diagrama muestra cómo fluye la información por dentro.
 >
-> Al arrancar la aplicación, los tres archivos JSON más los documentos de `user_knowledge` se indexan en **ChromaDB** — una base de datos vectorial local. El modelo `sentence-transformers/all-MiniLM-L6-v2` convierte cada fragmento de texto en un vector numérico de 384 dimensiones. Eso se hace una sola vez, al inicio, y el índice queda listo en memoria para responder consultas en milisegundos.
+> Al arrancar la aplicación, los tres JSON más `user_knowledge` se transforman en chunks y se indexan en **ChromaDB**. Usamos `sentence-transformers/all-MiniLM-L6-v2` para generar embeddings de 384 dimensiones, optimizando costo/latencia sin perder semántica útil para el dominio.
 >
-> Cuando llega una solicitud, el **VectorRetriever** hace tres búsquedas semánticas en paralelo dentro de ese índice — una por cada tipo de fuente — usando filtros por `source_type` y `modulo`. El resultado converge en el contexto unificado, que pasa al **Prompt Builder**.
+> Cuando llega una solicitud, el **VectorRetriever** ejecuta recuperación top-k por tipo de fuente con filtros por `source_type` y `modulo`. Esa etapa combina recuperación densa y metadatos estructurados para evitar traer contexto irrelevante.
 >
-> El Prompt Builder arma el prompt final: incluye las instrucciones del sistema, el contexto recuperado y la solicitud del usuario, todo estructurado para que el LLM responda en el formato JSON que espera el sistema.
+> El **Prompt Builder** serializa ese contexto en un prompt con contrato de salida. El LLM no responde libremente: responde bajo esquema, con campos explícitos y justificación verificable contra las evidencias recuperadas.
 >
-> Implementamos dos modos de LLM intercambiables por variable de entorno: un **cliente Mock** determinístico para testing — que permite correr los 21 tests del proyecto sin necesidad de conexión — y un **cliente remoto** que soporta tanto Ollama local con `qwen2.5:7b` como Hugging Face con `Qwen/Qwen2.5-7B-Instruct`. La lógica de negocio no cambia entre modos.
+> Implementamos dos rutas de inferencia por configuración: **Mock determinístico** para pruebas reproducibles y **cliente remoto** para ejecución real, compatible con Ollama local (`qwen2.5:7b`) y Hugging Face (`Qwen/Qwen2.5-7B-Instruct`). La capa de negocio permanece estable; solo cambia el adaptador de inferencia.
 >
-> Por último, el sistema también permite enriquecimiento en vivo: cualquier documento nuevo subido desde la interfaz desencadena un reindexado automático, y la siguiente consulta ya incorpora esa información. Así la base de conocimiento crece con el uso."
+> Por último, el enriquecimiento en vivo dispara reindexado automático ante nuevas fuentes. Eso nos da aprendizaje operativo incremental: la siguiente recomendación ya incorpora el nuevo contexto sin reentrenar el modelo base."
 
 ---
 
 ## Cierre (opcional, si hay tiempo)
 **Tiempo estimado: ~20 segundos**
 
-> "En resumen: la base de conocimiento es lo que transforma un LLM genérico en una herramienta especializada para Evergreen. Sin los tres archivos, el sistema no tiene vocabulario, no tiene reglas y no tiene precedentes. Con ellos, cada recomendación es consistente, justificada y trazable."
+> "En resumen: la contribución técnica no es "usar un LLM", sino **diseñar una arquitectura RAG gobernable**. La base de conocimiento aporta restricciones, semántica y evidencia histórica; el LLM aporta síntesis y explicación. Esa separación de responsabilidades es lo que vuelve el sistema robusto, auditable y útil en producción."
 
 ---
 
@@ -71,7 +71,7 @@
 
 | Diapositiva | Énfasis clave | Pausa sugerida |
 |---|---|---|
-| 1 — Base de conocimiento | "sin esto, el LLM falla" — es el gancho de entrada | Antes de mencionar cada archivo numerado |
+| 1 — Base de conocimiento | "grounding y control de alucinación normativa" — gancho técnico | Antes de presentar las 3 capas: normativa, ontológica, empírica |
 | 2 — Entradas / Salidas | `nivel_confianza` bajo → revisión manual — muestra madurez de diseño | Antes de las salidas; dar tiempo para leer la lista |
 | 3 — Flujo interno | Señalar físicamente los bloques del diagrama: KB → Index → RAG Context → LLM → Response | Antes de "dos modos de LLM" — cambio de tema |
 

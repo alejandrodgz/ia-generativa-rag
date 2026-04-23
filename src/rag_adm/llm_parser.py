@@ -15,6 +15,7 @@ class LLMDecision:
     permisos_recomendados: list[str]
     justificacion: str
     nivel_confianza: str
+    tipo_participante_inferido: str | None = None
 
 
 _CONFIANZA_VALIDA = {"alto", "medio", "bajo"}
@@ -56,11 +57,16 @@ def parse_llm_response(
     if confianza not in _CONFIANZA_VALIDA:
         confianza = "bajo"
 
+    tipo_inferido = data.get("tipo_participante_inferido") or None
+    if isinstance(tipo_inferido, str):
+        tipo_inferido = tipo_inferido.strip() or None
+
     return LLMDecision(
         rol_recomendado=rol,
         permisos_recomendados=permisos,
         justificacion=justificacion,
         nivel_confianza=confianza,
+        tipo_participante_inferido=tipo_inferido,
     )
 
 

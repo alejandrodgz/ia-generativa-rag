@@ -32,7 +32,6 @@ def test_recomendar_rol_endpoint() -> None:
     payload = {
         "cargo": "Analista de soporte ADM",
         "modulo_asignado": "ADM",
-        "tipo_participante": "Administrador",
         "descripcion_adicional": "Apoya la gestion de usuarios",
     }
 
@@ -46,13 +45,13 @@ def test_recomendar_rol_endpoint() -> None:
     assert isinstance(body["reglas_recuperadas_ref"], list)
     assert isinstance(body["casos_similares_score"], list)
     assert isinstance(body["documentos_apoyo_ref"], list)
+    assert body["tipo_participante_inferido"] is not None
 
 
 def test_recomendar_rol_endpoint_for_dis_module() -> None:
     payload = {
         "cargo": "Operador de ruta regional",
         "modulo_asignado": "DIS",
-        "tipo_participante": "Transportista",
         "descripcion_adicional": "Necesita calcular trayectorias y revisar estado del envio.",
     }
 
@@ -70,7 +69,6 @@ def test_recomendar_rol_endpoint_rejects_unconfigured_huggingface(monkeypatch) -
     payload = {
         "cargo": "Analista de soporte ADM",
         "modulo_asignado": "ADM",
-        "tipo_participante": "Administrador",
         "llm_provider": "huggingface",
     }
 
@@ -78,3 +76,20 @@ def test_recomendar_rol_endpoint_rejects_unconfigured_huggingface(monkeypatch) -
 
     assert response.status_code == 400
     assert "no esta configurado completamente" in response.json()["detail"]
+
+
+def test_recomendar_rol_sin_tipo_participante_infiere() -> None:
+    payload = {
+        "cargo": "Administrador de plataforma",
+        "modulo_asignado": "ADM",
+        "descripcion_adicional": "Responsable de crear usuarios y revisar permisos.",
+    }
+
+    response = client.post("/recomendar-rol", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["rol_recomendado"] in {"Admin", "Invitado"}
+    assert isinstance(body["permisos_recomendados"], list)
+    assert body["nivel_confianza"] in {"alto", "medio", "bajo"}
+    assert body["tipo_participante_inferido"] is not None

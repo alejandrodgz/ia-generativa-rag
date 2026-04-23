@@ -49,14 +49,7 @@ class JaccardRetriever:
 
     def retrieve_rules(self, request: RecommendationRequest) -> list[dict]:
         modulo = _normalize(request.modulo_asignado)
-        participante = _normalize(request.tipo_participante)
-        reglas = [
-            r
-            for r in self.knowledge_base.politicas["reglas"]
-            if _normalize(r["modulo"]) == modulo and _normalize(r["tipo_participante"]) == participante
-        ]
-        if reglas:
-            return reglas
+        # tipo_participante ya no es entrada — devolver todas las reglas del módulo para que el LLM infiera
         return [
             r
             for r in self.knowledge_base.politicas["reglas"]
@@ -65,7 +58,7 @@ class JaccardRetriever:
 
     def retrieve_similar_cases(self, request: RecommendationRequest) -> list[dict]:
         target_tokens = _tokenize(
-            f"{request.cargo} {request.modulo_asignado} {request.tipo_participante} {request.descripcion_adicional or ''}"
+            f"{request.cargo} {request.modulo_asignado} {request.descripcion_adicional or ''}"
         )
         scores: list[tuple[float, dict]] = []
         for case in self.knowledge_base.historico:
@@ -120,8 +113,8 @@ class VectorRetriever:
 
     def retrieve_rules(self, request: RecommendationRequest) -> list[dict]:
         query = (
-            "Regla de acceso para el modulo "
-            f"{request.modulo_asignado} y tipo de participante {request.tipo_participante}."
+            f"Reglas de acceso para el modulo {request.modulo_asignado} "
+            f"y cargo '{request.cargo}'. Infiere el tipo de participante adecuado."
         )
 
         docs = self._safe_similarity_search(
@@ -135,14 +128,6 @@ class VectorRetriever:
             },
         )
         rules = [_doc_payload(doc) for doc in docs if _doc_payload(doc)]
-
-        exact = [
-            rule
-            for rule in rules
-            if _normalize(rule.get("tipo_participante", "")) == _normalize(request.tipo_participante)
-        ]
-        if exact:
-            return exact
         if rules:
             return rules
 
@@ -156,7 +141,7 @@ class VectorRetriever:
     def retrieve_similar_cases(self, request: RecommendationRequest) -> list[dict]:
         query = (
             f"Cargo {request.cargo}. Modulo {request.modulo_asignado}. "
-            f"Tipo {request.tipo_participante}. Descripcion {request.descripcion_adicional or ''}."
+            f"Descripcion {request.descripcion_adicional or ''}."
         )
 
         docs_and_scores = self._safe_similarity_search_with_score(
@@ -182,7 +167,7 @@ class VectorRetriever:
     def retrieve_supporting_documents(self, request: RecommendationRequest) -> list[dict]:
         query = (
             f"Contexto de apoyo para cargo {request.cargo}. Modulo {request.modulo_asignado}. "
-            f"Tipo {request.tipo_participante}. Descripcion {request.descripcion_adicional or ''}."
+            f"Descripcion {request.descripcion_adicional or ''}."
         )
         docs_and_scores = self._safe_similarity_search_with_score(
             query,

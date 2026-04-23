@@ -81,6 +81,11 @@ class MockLLMClient:
             permisos_recomendados=permisos,
             justificacion=justificacion,
             nivel_confianza=confianza,
+            tipo_participante_inferido=(
+                (casos[0].get("tipo_participante") or reglas[0].get("tipo_participante"))
+                if (casos or reglas)
+                else None
+            ),
         )
 
 

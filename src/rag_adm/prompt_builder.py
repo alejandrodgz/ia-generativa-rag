@@ -44,13 +44,14 @@ def build_messages(
     system_prompt = (
         "Eres un asistente experto en los modulos de Evergreen (ADM, DIS, PLA y FIN), especializado en asignacion de roles y permisos. "
         "Tu tarea es razonar sobre el perfil de un usuario y el contexto recuperado, y DECIDIR el rol y permisos adecuados. "
+        "El tipo de participante NO es proporcionado por el usuario. Debes inferirlo a partir del cargo, la descripcion y los casos historicos similares. "
         "Debes responder UNICAMENTE con un objeto JSON valido, sin texto adicional antes ni despues del JSON."
     )
 
     # --- PARTE VARIABLE (perfil + contexto recuperado) + instruccion de formato ---
     user_prompt = (
         f"Dado el siguiente perfil de usuario y el contexto recuperado del dominio {bundle.perfil.modulo_asignado}, "
-        "decide el rol y los permisos a asignar.\n\n"
+        "infiere el tipo de participante y decide el rol y los permisos a asignar.\n\n"
         f"## Perfil del usuario\n{_format_profile(bundle.perfil)}\n\n"
         f"## Reglas del dominio {bundle.perfil.modulo_asignado} recuperadas\n{reglas_texto}\n\n"
         f"## Casos historicos similares\n{casos_texto}\n\n"
@@ -62,7 +63,8 @@ def build_messages(
         '  "rol_recomendado": "<uno de los roles validos>",\n'
         '  "permisos_recomendados": ["<permiso1>", "<permiso2>"],\n'
         '  "justificacion": "<explicacion de minimo 50 caracteres citando al menos una regla o caso recuperado>",\n'
-        '  "nivel_confianza": "<alto | medio | bajo>"\n'
+        '  "nivel_confianza": "<alto | medio | bajo>",\n'
+        '  "tipo_participante_inferido": "<tipo de participante inferido del cargo y contexto>"\n'
         "}"
     )
 
@@ -76,7 +78,6 @@ def _format_profile(profile: RecommendationRequest) -> str:
     lines = [
         f"- Cargo: {profile.cargo}",
         f"- Modulo asignado: {profile.modulo_asignado}",
-        f"- Tipo de participante: {profile.tipo_participante}",
     ]
     if profile.descripcion_adicional:
         lines.append(f"- Descripcion adicional: {profile.descripcion_adicional}")

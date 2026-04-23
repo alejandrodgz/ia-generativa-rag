@@ -300,10 +300,6 @@
       <select id="modulo" required></select>
     </div>
     <div class="field">
-      <label for="participante">Tipo de participante</label>
-      <select id="participante" required></select>
-    </div>
-    <div class="field">
       <label for="llm-provider">Proveedor LLM</label>
       <select id="llm-provider" required></select>
       <div class="helper-text">Selecciona entre Ollama local o Hugging Face.</div>
@@ -384,6 +380,10 @@
       <span class="result-label">Justificación</span>
       <span class="result-value" id="res-justificacion"></span>
     </div>
+    <div class="result-row" id="res-tipo-inferido-row" style="display:none">
+      <span class="result-label">Tipo de participante inferido</span>
+      <span class="result-value"><span id="res-tipo-inferido" class="badge" style="background:#ede9fe;color:#5b21b6"></span></span>
+    </div>
     <div class="result-row">
       <span class="result-label">Casos similares</span>
       <span class="result-value casos-list" id="res-casos"></span>
@@ -442,7 +442,10 @@
       docModSelect.innerHTML = data.modulos_disponibles.map(m => `<option value="${m}">${m}</option>`).join('');
 
       const partSelect = document.getElementById('participante');
-      partSelect.innerHTML = data.tipos_participante_disponibles.map(t => `<option value="${t}">${t}</option>`).join('');
+      if (partSelect) {
+        partSelect.innerHTML = '<option value="">— Inferir del cargo (recomendado) —</option>' +
+          data.tipos_participante_disponibles.map(t => `<option value="${t}">${t}</option>`).join('');
+      }
 
       const providerSelect = document.getElementById('llm-provider');
       providerSelect.innerHTML = (data.llm_providers_disponibles || ['ollama', 'huggingface'])
@@ -492,10 +495,10 @@
     spinner.style.display = 'flex';
     resultBody.style.display = 'none';
 
+    const tipoSeleccionado = document.getElementById('participante').value;
     const payload = {
       cargo: document.getElementById('cargo').value.trim(),
       modulo_asignado: document.getElementById('modulo').value,
-      tipo_participante: document.getElementById('participante').value,
       llm_provider: document.getElementById('llm-provider').value,
     };
     const desc = document.getElementById('descripcion').value.trim();
@@ -530,6 +533,14 @@
         : '<span style="color:#9ca3af">Sin permisos asignados</span>';
 
       document.getElementById('res-justificacion').textContent = data.justificacion;
+
+      const tipoInferidoRow = document.getElementById('res-tipo-inferido-row');
+      if (data.tipo_participante_inferido) {
+        document.getElementById('res-tipo-inferido').textContent = data.tipo_participante_inferido;
+        tipoInferidoRow.style.display = '';
+      } else {
+        tipoInferidoRow.style.display = 'none';
+      }
 
       const casosEl = document.getElementById('res-casos');
       casosEl.textContent = data.casos_similares_ref.length
