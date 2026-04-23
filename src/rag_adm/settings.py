@@ -9,6 +9,13 @@ class Settings:
     llm_api_key: str | None
     llm_base_url: str | None
     llm_model: str | None
+    llm_default_provider: str
+    ollama_api_key: str | None
+    ollama_base_url: str | None
+    ollama_model: str | None
+    huggingface_api_key: str | None
+    huggingface_base_url: str | None
+    huggingface_model: str | None
     llm_timeout_seconds: float
     retriever_mode: str
     vector_store_path: str
@@ -20,9 +27,31 @@ class Settings:
 
     @property
     def llm_mode(self) -> str:
-        if self.llm_api_key and self.llm_base_url and self.llm_model:
+        if self.llm_mode_for_provider(self.llm_default_provider) == "remote":
             return "remote"
         return "mock"
+
+    def llm_mode_for_provider(self, provider: str) -> str:
+        llm_api_key, llm_base_url, llm_model = self.resolve_provider_config(provider)
+        if llm_api_key and llm_base_url and llm_model:
+            return "remote"
+        return "mock"
+
+    def resolve_provider_config(self, provider: str) -> tuple[str | None, str | None, str | None]:
+        provider_normalized = provider.strip().lower()
+        if provider_normalized == "huggingface":
+            return (
+                self.huggingface_api_key,
+                self.huggingface_base_url,
+                self.huggingface_model,
+            )
+
+        # Default y fallback compatibilidad: ollama
+        return (
+            self.ollama_api_key or self.llm_api_key,
+            self.ollama_base_url or self.llm_base_url,
+            self.ollama_model or self.llm_model,
+        )
 
 
 @dataclass(slots=True)
@@ -46,6 +75,13 @@ def get_settings() -> Settings:
         llm_api_key=os.getenv("LLM_API_KEY"),
         llm_base_url=os.getenv("LLM_BASE_URL"),
         llm_model=os.getenv("LLM_MODEL"),
+        llm_default_provider=os.getenv("LLM_DEFAULT_PROVIDER", "ollama").strip().lower(),
+        ollama_api_key=os.getenv("OLLAMA_API_KEY", os.getenv("LLM_API_KEY")),
+        ollama_base_url=os.getenv("OLLAMA_BASE_URL", os.getenv("LLM_BASE_URL", "http://127.0.0.1:11434/v1")),
+        ollama_model=os.getenv("OLLAMA_MODEL", os.getenv("LLM_MODEL", "qwen2.5:7b")),
+        huggingface_api_key=os.getenv("HUGGINGFACE_API_KEY"),
+        huggingface_base_url=os.getenv("HUGGINGFACE_BASE_URL", "https://router.huggingface.co/v1"),
+        huggingface_model=os.getenv("HUGGINGFACE_MODEL", "Qwen/Qwen2.5-7B-Instruct"),
         llm_timeout_seconds=float(timeout_value),
         retriever_mode=os.getenv("RETRIEVER_MODE", "jaccard").strip().lower(),
         vector_store_path=os.getenv("VECTOR_STORE_PATH", "./data/chroma_db"),

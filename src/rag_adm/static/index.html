@@ -304,6 +304,11 @@
       <select id="participante" required></select>
     </div>
     <div class="field">
+      <label for="llm-provider">Proveedor LLM</label>
+      <select id="llm-provider" required></select>
+      <div class="helper-text">Selecciona entre Ollama local o Hugging Face.</div>
+    </div>
+    <div class="field">
       <label for="descripcion">Descripción adicional <span style="color:#9ca3af;font-weight:400">(opcional)</span></label>
       <textarea id="descripcion" placeholder="Información adicional sobre el perfil..."></textarea>
     </div>
@@ -399,6 +404,10 @@
     Admin: 'Gestor del sistema',
     Invitado: 'Usuario operativo',
   };
+  const LLM_PROVIDER_LABEL = {
+    ollama: 'Ollama',
+    huggingface: 'Hugging Face',
+  };
 
   function getRoleDisplayLabel(role) {
     return ROLE_DISPLAY_LABEL[role] || role;
@@ -437,8 +446,15 @@
       const partSelect = document.getElementById('participante');
       partSelect.innerHTML = data.tipos_participante_disponibles.map(t => `<option value="${t}">${t}</option>`).join('');
 
+      const providerSelect = document.getElementById('llm-provider');
+      providerSelect.innerHTML = (data.llm_providers_disponibles || ['ollama', 'huggingface'])
+        .map((provider) => `<option value="${provider}">${LLM_PROVIDER_LABEL[provider] || provider}</option>`)
+        .join('');
+      providerSelect.value = data.llm_provider_default || 'ollama';
+
       const badge = document.getElementById('llm-badge');
-      badge.textContent = `LLM: ${data.llm_mode === 'remote' ? 'Ollama (qwen2.5:7b)' : 'Mock (sin LLM)'}`;
+      const defaultProviderLabel = LLM_PROVIDER_LABEL[data.llm_provider_default] || data.llm_provider_default;
+      badge.textContent = `LLM por defecto: ${defaultProviderLabel} · ${data.llm_mode === 'remote' ? 'activo' : 'mock'}`;
       badge.style.background = data.llm_mode === 'remote' ? '#d1fae5' : '#f3f4f6';
       badge.style.color = data.llm_mode === 'remote' ? '#065f46' : '#6b7280';
 
@@ -482,6 +498,7 @@
       cargo: document.getElementById('cargo').value.trim(),
       modulo_asignado: document.getElementById('modulo').value,
       tipo_participante: document.getElementById('participante').value,
+      llm_provider: document.getElementById('llm-provider').value,
     };
     const desc = document.getElementById('descripcion').value.trim();
     if (desc) payload.descripcion_adicional = desc;

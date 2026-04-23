@@ -29,7 +29,7 @@ class RolePermissionRecommender:
         self.llm_client = llm_client
         self.retriever = retriever
 
-    def recommend(self, request: RecommendationRequest) -> RecommendationResponse:
+    def recommend(self, request: RecommendationRequest, llm_client=None) -> RecommendationResponse:
         reglas = self.retriever.retrieve_rules(request)
         casos = self.retriever.retrieve_similar_cases(request)
         documentos_apoyo = self.retriever.retrieve_supporting_documents(request)
@@ -43,7 +43,8 @@ class RolePermissionRecommender:
         roles_validos = self.knowledge_base.roles_validos()
         permisos_validos = self.knowledge_base.permisos_validos()
 
-        decision = self.llm_client.complete(bundle, roles_validos, permisos_validos)
+        active_llm_client = llm_client or self.llm_client
+        decision = active_llm_client.complete(bundle, roles_validos, permisos_validos)
 
         # Detectar tipo de retriever
         retriever_class = self.retriever.__class__.__name__

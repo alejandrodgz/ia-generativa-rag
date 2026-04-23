@@ -147,6 +147,8 @@ def metadata() -> MetadataResponse:
 
     return MetadataResponse(
         llm_mode=settings.llm_mode,
+        llm_provider_default=settings.llm_default_provider if settings.llm_default_provider in ("ollama", "huggingface") else "ollama",
+        llm_providers_disponibles=["ollama", "huggingface"],
         retriever_mode=settings.retriever_mode,
         roles_disponibles=roles,
         modulos_disponibles=modulos,
@@ -168,7 +170,9 @@ def metadata() -> MetadataResponse:
 
 @app.post("/recomendar-rol", response_model=RecommendationResponse)
 def recomendar_rol(payload: RecommendationRequest) -> RecommendationResponse:
-    return get_recommender().recommend(payload)
+    settings = get_settings()
+    llm_client = build_llm_client(settings, provider=payload.llm_provider)
+    return get_recommender().recommend(payload, llm_client=llm_client)
 
 
 @app.get("/enrichment/status", response_model=EnrichmentStatusResponse)

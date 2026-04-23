@@ -8,6 +8,7 @@ class RecommendationRequest(BaseModel):
     modulo_asignado: str = Field(min_length=1, max_length=20)
     tipo_participante: str = Field(min_length=1, max_length=100)
     descripcion_adicional: str | None = Field(default=None, max_length=500)
+    llm_provider: Literal["ollama", "huggingface"] | None = None
 
 
 class RecommendationResponse(BaseModel):
@@ -29,6 +30,8 @@ class HealthResponse(BaseModel):
 
 class MetadataResponse(BaseModel):
     llm_mode: Literal["mock", "remote"]
+    llm_provider_default: Literal["ollama", "huggingface"]
+    llm_providers_disponibles: list[str]
     retriever_mode: Literal["jaccard", "vector", "hybrid"]
     roles_disponibles: list[str]
     modulos_disponibles: list[str]

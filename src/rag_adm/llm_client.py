@@ -68,8 +68,18 @@ class MockLLMClient:
 
 
 class RemoteLLMClient:
-    def __init__(self, settings: Settings, fallback: MockLLMClient | None = None) -> None:
+    def __init__(
+        self,
+        settings: Settings,
+        api_key: str,
+        base_url: str,
+        model: str,
+        fallback: MockLLMClient | None = None,
+    ) -> None:
         self.settings = settings
+        self.api_key = api_key
+        self.base_url = base_url
+        self.model = model
         self.fallback = fallback or MockLLMClient()
 
     def complete(
@@ -89,15 +99,15 @@ class RemoteLLMClient:
 
     def _call_remote(self, messages: list[PromptMessage]) -> str:
         headers = {
-            "Authorization": f"Bearer {self.settings.llm_api_key}",
+            "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
         payload = {
-            "model": self.settings.llm_model,
+            "model": self.model,
             "messages": [message.model_dump() for message in messages],
             "temperature": 0.2,
         }
-        endpoint = self.settings.llm_base_url.rstrip("/") + "/chat/completions"
+        endpoint = self.base_url.rstrip("/") + "/chat/completions"
         with httpx.Client(timeout=self.settings.llm_timeout_seconds) as client:
             response = client.post(endpoint, headers=headers, json=payload)
             response.raise_for_status()
@@ -105,8 +115,10 @@ class RemoteLLMClient:
         return body["choices"][0]["message"]["content"]
 
 
-def build_llm_client(settings: Settings) -> MockLLMClient | RemoteLLMClient:
-    if settings.llm_mode == "remote":
-        return RemoteLLMClient(settings)
+def build_llm_client(settings: Settings, provider: str | None = None) -> MockLLMClient | RemoteLLMClient:
+    selected_provider = (provider or settings.llm_default_provider).strip().lower()
+    api_key, base_url, model = settings.resolve_provider_config(selected_provider)
+    if api_key and base_url and model:
+        return RemoteLLMClient(settings, api_key=api_key, base_url=base_url, model=model)
     return MockLLMClient()
 
