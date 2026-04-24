@@ -120,7 +120,7 @@ def get_settings() -> Settings:
         huggingface_model=os.getenv("HUGGINGFACE_MODEL", "meta-llama/Llama-3.1-8B-Instruct"),
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         openai_base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-        openai_model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+        openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
         llm_timeout_seconds=float(timeout_value),
         retriever_mode=os.getenv("RETRIEVER_MODE", "jaccard").strip().lower(),
         vector_store_path=os.getenv("VECTOR_STORE_PATH", "./data/chroma_db"),

@@ -261,7 +261,7 @@ El proyecto soporta tres proveedores configurables:
 |---|---|---|---|
 | Ollama | `qwen2.5:7b` | `http://127.0.0.1:11434/v1` | LLM local para demo sin costo |
 | Hugging Face | `meta-llama/Llama-3.1-8B-Instruct` | `https://router.huggingface.co/v1` | Modelo remoto via HF Router |
-| OpenAI | `gpt-5-mini` | `https://api.openai.com/v1` | Modelo remoto para comparacion |
+| OpenAI | `gpt-4.1-mini` | `https://api.openai.com/v1` | Modelo remoto para comparacion |
 
 ### 3.1 Comparacion de Resultados con cada LLM
 
@@ -309,14 +309,14 @@ Evidencia pendiente:
 - captura de la respuesta
 - observacion sobre precision, formato y latencia
 
-#### OpenAI - `gpt-5-mini`
+#### OpenAI - `gpt-4.1-mini`
 
 Configuracion:
 
 ```bash
 OPENAI_API_KEY=<token>
 OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-5-mini
+OPENAI_MODEL=gpt-4.1-mini
 LLM_DEFAULT_PROVIDER=openai
 ```
 
