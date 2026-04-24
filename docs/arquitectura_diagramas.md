@@ -13,7 +13,7 @@ flowchart TD
     subgraph FE["Frontend - index.html"]
         A([Usuario llena formulario])
         B[cargo / modulo / tipo_participante / descripcion]
-        C[fetch POST /recomendar-rol]
+        C["fetch POST /recomendar-rol"]
         A --> B --> C
     end
 
@@ -31,7 +31,7 @@ flowchart TD
 
     subgraph API["API - main.py"]
         direction TB
-        D[POST /recomendar-rol]
+        D["POST /recomendar-rol"]
         E[get_recommender]
         H[VectorRetriever]
         D --> E --> H
