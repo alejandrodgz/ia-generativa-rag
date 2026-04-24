@@ -495,7 +495,6 @@
     spinner.style.display = 'flex';
     resultBody.style.display = 'none';
 
-    const tipoSeleccionado = document.getElementById('participante').value;
     const payload = {
       cargo: document.getElementById('cargo').value.trim(),
       modulo_asignado: document.getElementById('modulo').value,
@@ -513,7 +512,11 @@
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || `Error ${res.status}`);
+        const detail = err.detail;
+        const msg = Array.isArray(detail)
+          ? detail.map(d => d.msg || JSON.stringify(d)).join('; ')
+          : (typeof detail === 'string' ? detail : `Error ${res.status}`);
+        throw new Error(msg);
       }
 
       const data = await res.json();

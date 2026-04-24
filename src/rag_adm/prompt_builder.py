@@ -58,6 +58,10 @@ def build_messages(
         f"## Documentos de apoyo adicionales\n{documentos_texto}\n\n"
         f"## Roles validos en el sistema\n{roles_lista}\n\n"
         f"## Permisos validos en el sistema\n{permisos_lista}\n\n"
+        "Criterios para nivel_confianza:\n"
+        "- alto: el cargo coincide claramente con un tipo de participante conocido, hay al menos una regla directa Y un caso historico con similitud >= 0.6.\n"
+        "- medio: hay reglas del dominio aplicables pero el cargo es ambiguo, o la similitud de los casos esta entre 0.3 y 0.6, o falta uno de los dos (regla o caso historico).\n"
+        "- bajo: el cargo no se alinea con ningun tipo conocido, no hay casos similares con similitud >= 0.3, o la inferencia del tipo es especulativa.\n\n"
         "Responde SOLO con este JSON (sin markdown, sin texto extra):\n"
         "{\n"
         '  "rol_recomendado": "<uno de los roles validos>",\n'

@@ -53,11 +53,14 @@ class MockLLMClient:
         permisos_candidatos = reglas[0]["permisos"] if reglas else []
         permisos = [p for p in permisos_candidatos if p in permisos_validos][:5]
 
-        if reglas and casos and casos[0].get("_score", 0) >= 0.4:
+        top_score = casos[0].get("_score", 0) if casos else 0
+        if reglas and casos and top_score >= 0.6:
             confianza = "alto"
-        elif reglas or (casos and casos[0].get("_score", 0) >= 0.2):
+        elif reglas and (casos and top_score >= 0.3):
             confianza = "medio"
-        elif documentos and documentos[0].get("_score", 0) >= 0.2:
+        elif reglas and not casos:
+            confianza = "medio"
+        elif documentos and documentos[0].get("_score", 0) >= 0.3:
             confianza = "medio"
         else:
             confianza = "bajo"
