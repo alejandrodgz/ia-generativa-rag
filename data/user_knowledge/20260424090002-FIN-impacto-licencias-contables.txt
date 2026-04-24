@@ -1,0 +1,14 @@
+Politicas mock de licencias para permisos FIN.
+
+Los permisos financieros deben analizarse con mayor rigor porque pueden consultar o escribir informacion sensible en sistemas contables externos. En este mock se usa Atlas Contable Externo como sistema de referencia.
+
+El permiso fin_consultar_cuentas_contables puede requerir licencia de consulta financiera si el usuario accede a saldos, centros de costo o estructura contable fuera de Evergreen. El riesgo es medio y debe validarlo Finanzas o Contabilidad.
+
+Los permisos fin_registrar_compradores_facturas, fin_registrar_movimientos_contables y fin_generar_comprobante_egreso pueden requerir licencia funcional de escritura, modulo contable activo e integracion API. El riesgo es alto porque el usuario puede crear datos financieros, generar documentos de egreso o afectar libros contables.
+
+Si los movimientos financieros se sincronizan con Workday Financials, SAP u otro ERP, el informe debe indicar que puede existir costo por modulo financiero, conector enterprise o consumo transaccional. No se debe estimar costo final sin contrato; debe marcarse como sujeto a cotizacion o revision contractual.
+
+Resumen FIN:
+- consulta contable: posible licencia de consulta, riesgo medio.
+- escritura contable: licencia funcional y API, riesgo alto.
+- comprobantes de egreso: aprobacion obligatoria de Finanzas, Contabilidad y TI.

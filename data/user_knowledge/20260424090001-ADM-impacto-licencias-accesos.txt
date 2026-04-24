@@ -1,0 +1,15 @@
+Politicas mock de licencias para permisos ADM.
+
+Los permisos gestionar_usuarios y configurar_permisos pertenecen al modulo ADM, pero pueden requerir consultar informacion laboral del usuario en un sistema HCM como SAP SuccessFactors o Workday. Si Evergreen no tiene cubierto el conector HCM o el usuario objetivo no existe en el sistema corporativo, se debe validar con RRHH y TI antes de aprobar.
+
+El permiso auditar_accesos puede requerir evidencia tecnica, bitacoras o trazabilidad sobre repositorios privados. Si el auditor necesita entrar a GitHub Enterprise y no tiene seat disponible, puede generarse costo adicional por licencia. La aprobacion debe pasar por TI y Seguridad.
+
+Los permisos ver_reportes_adm y exportar_reportes_adm pueden no tener costo dentro de Evergreen. Sin embargo, si la exportacion se realiza hacia una plataforma BI corporativa o dashboard externo, puede requerir licencia de viewer o creator. La aprobacion recomendada es Datos o BI.
+
+El permiso notificar_participantes puede activar costos variables por correo, SMS o proveedor de mensajeria. No suele requerir licencia nominal, pero debe validarse el volumen mensual estimado.
+
+Resumen ADM:
+- gestionar_usuarios o configurar_permisos: riesgo alto si consulta HCM externo.
+- auditar_accesos: riesgo medio si requiere GitHub privado.
+- exportar_reportes_adm: riesgo medio si usa BI externo.
+- notificar_participantes: riesgo medio por consumo de mensajes.

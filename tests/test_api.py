@@ -26,6 +26,8 @@ def test_metadata_endpoint() -> None:
     assert "index_metadata_valid" in body
     assert "extra_documents_count" in body
     assert "synthetic_cases_count" in body
+    assert {"ollama", "huggingface", "openai"}.issubset(set(body["llm_providers_disponibles"]))
+    assert "openai" in body["llm_provider_models"]
 
 
 def test_recomendar_rol_endpoint() -> None:

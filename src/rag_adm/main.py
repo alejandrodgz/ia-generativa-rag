@@ -18,12 +18,15 @@ from .enrichment import (
     save_user_document,
 )
 from .knowledge_base import KnowledgeBase
+from .license_impact import analyze_license_impact
 from .llm_client import build_llm_client
 from .models import (
     DocumentIngestRequest,
     DocumentIngestResponse,
     EnrichmentStatusResponse,
     HealthResponse,
+    LicenseImpactRequest,
+    LicenseImpactResponse,
     MetadataResponse,
     RecommendationRequest,
     RecommendationResponse,
@@ -38,6 +41,7 @@ from .vector_store import build_or_load_vector_store, get_vector_index_status
 
 
 _STATIC = Path(__file__).parent / "static"
+_SUPPORTED_LLM_PROVIDERS = ("ollama", "huggingface", "openai")
 
 def get_base_path() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -147,8 +151,12 @@ def metadata() -> MetadataResponse:
 
     return MetadataResponse(
         llm_mode=settings.llm_mode,
-        llm_provider_default=settings.llm_default_provider if settings.llm_default_provider in ("ollama", "huggingface") else "ollama",
-        llm_providers_disponibles=["ollama", "huggingface"],
+        llm_provider_default=settings.llm_default_provider if settings.llm_default_provider in _SUPPORTED_LLM_PROVIDERS else "ollama",
+        llm_providers_disponibles=list(_SUPPORTED_LLM_PROVIDERS),
+        llm_provider_models={
+            provider: settings.resolve_provider_config(provider)[2]
+            for provider in _SUPPORTED_LLM_PROVIDERS
+        },
         retriever_mode=settings.retriever_mode,
         roles_disponibles=roles,
         modulos_disponibles=modulos,
@@ -176,6 +184,25 @@ def recomendar_rol(payload: RecommendationRequest) -> RecommendationResponse:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return get_recommender().recommend(payload, llm_client=llm_client)
+
+
+@app.post("/analizar-impacto-licencias", response_model=LicenseImpactResponse)
+def analizar_impacto_licencias(payload: LicenseImpactRequest) -> LicenseImpactResponse:
+    supporting_documents: list[dict] = []
+    try:
+        evidence_request = RecommendationRequest(
+            cargo=payload.cargo,
+            modulo_asignado=payload.modulo_asignado,
+            descripcion_adicional=(
+                "impacto licencias costos sistemas externos "
+                + " ".join(payload.permisos_recomendados)
+            ),
+        )
+        supporting_documents = get_recommender().retriever.retrieve_supporting_documents(evidence_request)
+    except Exception:
+        supporting_documents = []
+
+    return analyze_license_impact(get_base_path(), payload, supporting_documents=supporting_documents)
 
 
 @app.get("/enrichment/status", response_model=EnrichmentStatusResponse)

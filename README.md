@@ -168,6 +168,26 @@ HYBRID_RETRIEVER_MODE=true \
 python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
 ```
 
+### Opcion F. Vector + comparacion de 3 modelos
+
+Configura los tres proveedores y cambia entre ellos desde el selector de la UI:
+
+```bash
+OLLAMA_API_KEY=ollama \
+OLLAMA_BASE_URL=http://127.0.0.1:11434/v1 \
+OLLAMA_MODEL=qwen2.5:7b \
+HUGGINGFACE_API_KEY=hf_xxx \
+HUGGINGFACE_BASE_URL=https://router.huggingface.co/v1 \
+HUGGINGFACE_MODEL=Qwen/Qwen2.5-7B-Instruct \
+OPENAI_API_KEY=sk_xxx \
+OPENAI_BASE_URL=https://api.openai.com/v1 \
+OPENAI_MODEL=gpt-5-mini \
+LLM_DEFAULT_PROVIDER=huggingface \
+RETRIEVER_MODE=vector \
+VECTOR_REBUILD_INDEX=false \
+python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
+```
+
 ---
 
 ## 5) URLs clave
@@ -318,7 +338,7 @@ curl -X POST http://127.0.0.1:8000/recomendar-rol \
 | `LLM_API_KEY` | null | Credencial del proveedor (si remote) |
 | `LLM_BASE_URL` | null | Base URL compatible OpenAI |
 | `LLM_MODEL` | null | Modelo LLM |
-| `LLM_DEFAULT_PROVIDER` | `ollama` | Proveedor por defecto en la UI (`ollama` o `huggingface`) |
+| `LLM_DEFAULT_PROVIDER` | `ollama` | Proveedor por defecto en la UI (`ollama`, `huggingface` u `openai`) |
 | `LLM_TIMEOUT_SECONDS` | `20` | Timeout de llamada LLM |
 | `RETRIEVER_MODE` | `jaccard` | `jaccard`, `vector`, `hybrid` |
 
@@ -334,6 +354,9 @@ Nota: el modo LLM se infiere automaticamente. Si hay `LLM_API_KEY`, `LLM_BASE_UR
 | `HUGGINGFACE_API_KEY` | null | Token de Hugging Face |
 | `HUGGINGFACE_BASE_URL` | `https://router.huggingface.co/v1` | Endpoint OpenAI-compatible de HF Router |
 | `HUGGINGFACE_MODEL` | `Qwen/Qwen2.5-7B-Instruct` | Modelo en Hugging Face |
+| `OPENAI_API_KEY` | null | API key de OpenAI |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Endpoint OpenAI Chat Completions |
+| `OPENAI_MODEL` | `gpt-5-mini` | Modelo OpenAI para comparar en la UI |
 
 ### Vector
 

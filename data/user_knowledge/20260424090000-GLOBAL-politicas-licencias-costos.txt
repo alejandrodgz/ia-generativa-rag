@@ -1,0 +1,13 @@
+Politica global de impacto de licencias y costos para Evergreen.
+
+Cuando un administrador asigna permisos, el sistema debe evaluar si esos permisos solo afectan la plataforma interna Evergreen o si activan dependencia con sistemas externos. Los impactos posibles son: sin costo aparente, posible costo por consumo, posible consumo de seat o licencia, modulo adicional requerido, integracion externa requerida o validacion contractual obligatoria.
+
+Regla general: los permisos internos de consulta en Evergreen suelen estar cubiertos por la plataforma base. Los permisos de administracion, escritura financiera, exportacion recurrente, integraciones HCM, repositorios privados, APIs de mapas, motores analiticos o sistemas contables externos requieren analisis adicional antes de aprobar.
+
+El informe debe indicar: sistema afectado, permiso o conjunto de permisos, riesgo bajo medio o alto, tipo de costo, rango estimado mock, area aprobadora y accion sugerida. Si el costo depende de contrato, el informe no debe inventar precio final; debe decir que requiere cotizacion o revision contractual.
+
+Clasificacion sugerida:
+- sin costo aparente: no se detectan sistemas externos ni consumo adicional.
+- posible costo: hay consumo por API, mensajeria, computo o uso variable.
+- requiere licencia: puede consumir seat, usuario nominal o licencia BI/HCM/contable.
+- requiere validacion contractual: hay riesgo alto, escritura financiera, administracion tecnica, modulo adicional o sistema enterprise sujeto a contrato.

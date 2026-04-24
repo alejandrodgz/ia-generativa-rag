@@ -2,6 +2,32 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
+from pathlib import Path
+
+
+_ENV_FILES_LOADED = False
+
+
+def _load_local_env_file() -> None:
+    """Carga variables desde .env sin sobrescribir el entorno del proceso."""
+    global _ENV_FILES_LOADED
+    if _ENV_FILES_LOADED:
+        return
+
+    env_file = Path(__file__).resolve().parents[2] / ".env"
+    if env_file.exists() and env_file.is_file():
+        original_env_keys = set(os.environ.keys())
+        for raw_line in env_file.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if key and key not in original_env_keys:
+                os.environ[key] = value
+
+    _ENV_FILES_LOADED = True
 
 
 @dataclass(slots=True)
@@ -16,6 +42,9 @@ class Settings:
     huggingface_api_key: str | None
     huggingface_base_url: str | None
     huggingface_model: str | None
+    openai_api_key: str | None
+    openai_base_url: str | None
+    openai_model: str | None
     llm_timeout_seconds: float
     retriever_mode: str
     vector_store_path: str
@@ -45,6 +74,12 @@ class Settings:
                 self.huggingface_base_url,
                 self.huggingface_model,
             )
+        if provider_normalized == "openai":
+            return (
+                self.openai_api_key,
+                self.openai_base_url,
+                self.openai_model,
+            )
 
         # Default y fallback compatibilidad: ollama
         return (
@@ -70,6 +105,7 @@ class HybridSettings:
 
 
 def get_settings() -> Settings:
+    _load_local_env_file()
     timeout_value = os.getenv("LLM_TIMEOUT_SECONDS", "20")
     return Settings(
         llm_api_key=os.getenv("LLM_API_KEY"),
@@ -82,6 +118,9 @@ def get_settings() -> Settings:
         huggingface_api_key=os.getenv("HUGGINGFACE_API_KEY"),
         huggingface_base_url=os.getenv("HUGGINGFACE_BASE_URL", "https://router.huggingface.co/v1"),
         huggingface_model=os.getenv("HUGGINGFACE_MODEL", "Qwen/Qwen2.5-7B-Instruct"),
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        openai_base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+        openai_model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
         llm_timeout_seconds=float(timeout_value),
         retriever_mode=os.getenv("RETRIEVER_MODE", "jaccard").strip().lower(),
         vector_store_path=os.getenv("VECTOR_STORE_PATH", "./data/chroma_db"),

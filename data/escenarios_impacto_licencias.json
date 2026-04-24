@@ -1,0 +1,131 @@
+[
+  {
+    "id": "ESC-LIC-ADM-001",
+    "titulo": "Administrador ADM con integracion HCM",
+    "cargo": "Analista de soporte ADM",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Administrador",
+    "permisos_evaluados": [
+      "gestionar_usuarios",
+      "configurar_permisos",
+      "auditar_accesos"
+    ],
+    "permisos_externos_solicitados": [
+      "successfactors_perfil_empleado_consulta",
+      "github_repositorios_privados_lectura"
+    ],
+    "resultado_esperado_mock": {
+      "clasificacion": "requiere_validacion_contractual",
+      "riesgo": "alto",
+      "areas_aprobadoras": ["RRHH / TI", "TI / Seguridad"],
+      "mensaje": "La asignacion puede requerir validar conectores HCM y disponibilidad de seat GitHub para evidencia tecnica."
+    }
+  },
+  {
+    "id": "ESC-LIC-ADM-002",
+    "titulo": "Auditor externo con reportes y evidencias",
+    "cargo": "Auditor externo de procesos",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Auditor",
+    "permisos_evaluados": [
+      "ver_reportes_adm",
+      "exportar_reportes_adm",
+      "auditar_accesos",
+      "ver_trazabilidad"
+    ],
+    "permisos_externos_solicitados": [
+      "github_repositorios_privados_lectura",
+      "bi_dashboards_exportacion"
+    ],
+    "resultado_esperado_mock": {
+      "clasificacion": "requiere_licencia",
+      "riesgo": "medio",
+      "areas_aprobadoras": ["TI / Seguridad", "Datos / BI"],
+      "mensaje": "Puede requerir seat GitHub si revisa repositorios privados y licencia BI si exporta reportes externos."
+    }
+  },
+  {
+    "id": "ESC-LIC-FIN-001",
+    "titulo": "Contador con escritura contable",
+    "cargo": "Contador regional",
+    "modulo_asignado": "FIN",
+    "tipo_participante": "Contador",
+    "permisos_evaluados": [
+      "fin_registrar_compradores_facturas",
+      "fin_consultar_cuentas_contables",
+      "fin_generar_comprobante_egreso"
+    ],
+    "permisos_externos_solicitados": [
+      "atlas_contable_facturas_escritura",
+      "atlas_contable_consulta_cuentas"
+    ],
+    "resultado_esperado_mock": {
+      "clasificacion": "requiere_validacion_contractual",
+      "riesgo": "alto",
+      "areas_aprobadoras": ["Finanzas / Contabilidad", "Finanzas / Contabilidad / TI"],
+      "mensaje": "La escritura financiera puede requerir licencia funcional de sistema contable y consumo API por transaccion."
+    }
+  },
+  {
+    "id": "ESC-LIC-DIS-001",
+    "titulo": "Coordinador logistico con calculo de rutas",
+    "cargo": "Coordinador logistico regional",
+    "modulo_asignado": "DIS",
+    "tipo_participante": "CoordinadorLogistico",
+    "permisos_evaluados": [
+      "dis_calcular_distancia_tiempo",
+      "dis_calcular_trayectoria_costo",
+      "dis_programar_transporte",
+      "dis_gestionar_pedidos"
+    ],
+    "permisos_externos_solicitados": [],
+    "resultado_esperado_mock": {
+      "clasificacion": "requiere_validacion_contractual",
+      "riesgo": "alto",
+      "areas_aprobadoras": ["Logistica / TI", "Logistica / Compras / TI"],
+      "mensaje": "El calculo de rutas tiene consumo por API y la programacion de transporte puede requerir conector TMS."
+    }
+  },
+  {
+    "id": "ESC-LIC-PLA-001",
+    "titulo": "Analista de planeacion con simulaciones",
+    "cargo": "Analista de datos de planeacion",
+    "modulo_asignado": "PLA",
+    "tipo_participante": "AnalistaDatos",
+    "permisos_evaluados": [
+      "pla_simular_escenarios",
+      "pla_ejecutar_proyeccion",
+      "pla_calificar_proyecciones",
+      "pla_publicar_informe_consolidado"
+    ],
+    "permisos_externos_solicitados": [
+      "bi_dashboards_exportacion"
+    ],
+    "resultado_esperado_mock": {
+      "clasificacion": "requiere_licencia",
+      "riesgo": "medio",
+      "areas_aprobadoras": ["Planeacion / Datos", "Datos / BI"],
+      "mensaje": "Las simulaciones pueden generar consumo compute y la publicacion de informes puede requerir licencia BI."
+    }
+  },
+  {
+    "id": "ESC-LIC-GLOBAL-001",
+    "titulo": "Usuario tecnico con permisos GitHub administrativos",
+    "cargo": "DevOps Evergreen",
+    "modulo_asignado": "ADM",
+    "tipo_participante": "Tecnico",
+    "permisos_evaluados": [
+      "auditar_accesos"
+    ],
+    "permisos_externos_solicitados": [
+      "github_repositorios_privados_escritura",
+      "github_actions_administrar"
+    ],
+    "resultado_esperado_mock": {
+      "clasificacion": "requiere_validacion_contractual",
+      "riesgo": "alto",
+      "areas_aprobadoras": ["TI / Seguridad / DevOps"],
+      "mensaje": "La administracion de repositorios y pipelines requiere validar seat GitHub y aprobacion DevOps."
+    }
+  }
+]

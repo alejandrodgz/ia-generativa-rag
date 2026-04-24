@@ -1,0 +1,419 @@
+{
+  "version": "1.0",
+  "fecha_generacion": "2026-04-24",
+  "descripcion": "Catalogo mock para analizar impacto de licencias, costos e integraciones cuando se asignan permisos en Evergreen.",
+  "moneda_referencia": "USD",
+  "niveles_riesgo": [
+    {
+      "nivel": "bajo",
+      "criterio": "No se identifica costo adicional directo o el costo ya esta cubierto por la plataforma interna."
+    },
+    {
+      "nivel": "medio",
+      "criterio": "Puede requerir validacion de cupos, seats, consumo por uso o aprobacion de un area responsable."
+    },
+    {
+      "nivel": "alto",
+      "criterio": "Puede requerir licencia nueva, modulo contratado, integracion externa o aprobacion contractual antes de activar el permiso."
+    }
+  ],
+  "acciones_sugeridas": [
+    "aprobar_sin_costo_adicional",
+    "verificar_cupo_licencia",
+    "validar_con_area_responsable",
+    "solicitar_cotizacion",
+    "revisar_contrato",
+    "restringir_permiso"
+  ],
+  "sistemas_externos": [
+    {
+      "id": "evergreen_core",
+      "nombre": "Evergreen Core",
+      "categoria": "plataforma_interna",
+      "descripcion": "Modulo interno de Evergreen usado para roles, permisos, agrocadenas, etapas y trazabilidad.",
+      "modelo_costo_mock": {
+        "tipo": "incluido_en_plataforma",
+        "unidad": "usuario_interno",
+        "costo_unitario_mensual_estimado": 0,
+        "requiere_cotizacion": false
+      },
+      "area_responsable": "TI Evergreen"
+    },
+    {
+      "id": "github_enterprise",
+      "nombre": "GitHub Enterprise",
+      "categoria": "desarrollo_colaborativo",
+      "descripcion": "Repositorio, acciones CI/CD, auditoria tecnica y control de acceso a codigo fuente o documentacion tecnica.",
+      "modelo_costo_mock": {
+        "tipo": "seat_por_usuario",
+        "unidad": "usuario_mes",
+        "costo_unitario_mensual_estimado": 21,
+        "requiere_cotizacion": true
+      },
+      "area_responsable": "TI / Arquitectura"
+    },
+    {
+      "id": "successfactors_hcm",
+      "nombre": "SAP SuccessFactors HCM",
+      "categoria": "gestion_talento_rrhh",
+      "descripcion": "Suite HCM para perfiles de empleado, cargos, compensacion, aprobaciones y procesos de talento.",
+      "modelo_costo_mock": {
+        "tipo": "modulo_y_usuario",
+        "unidad": "empleado_mes",
+        "costo_unitario_mensual_estimado": 12,
+        "requiere_cotizacion": true
+      },
+      "area_responsable": "RRHH / TI"
+    },
+    {
+      "id": "workday_hcm",
+      "nombre": "Workday HCM",
+      "categoria": "gestion_talento_rrhh",
+      "descripcion": "Sistema HCM externo para datos laborales, perfiles de trabajador, aprobaciones y estructura organizacional.",
+      "modelo_costo_mock": {
+        "tipo": "suscripcion_empresarial",
+        "unidad": "empleado_mes",
+        "costo_unitario_mensual_estimado": 18,
+        "requiere_cotizacion": true
+      },
+      "area_responsable": "RRHH / Finanzas / TI"
+    },
+    {
+      "id": "atlas_contable",
+      "nombre": "Atlas Contable Externo",
+      "categoria": "contabilidad_finanzas",
+      "descripcion": "Sistema contable mock para cuentas, facturas, comprobantes de egreso, movimientos y centros de costo.",
+      "modelo_costo_mock": {
+        "tipo": "licencia_funcional_y_consumo_api",
+        "unidad": "usuario_mes_mas_transaccion",
+        "costo_unitario_mensual_estimado": 35,
+        "costo_transaccion_estimado": 0.04,
+        "requiere_cotizacion": true
+      },
+      "area_responsable": "Finanzas / Contabilidad"
+    },
+    {
+      "id": "mapas_logistica_api",
+      "nombre": "API de Mapas y Logistica",
+      "categoria": "servicio_api_transaccional",
+      "descripcion": "Servicio externo mock para calculo de rutas, distancia, tiempo estimado, costo logistico y georreferenciacion.",
+      "modelo_costo_mock": {
+        "tipo": "consumo_por_transaccion",
+        "unidad": "consulta_api",
+        "costo_unitario_mensual_estimado": 0,
+        "costo_transaccion_estimado": 0.02,
+        "requiere_cotizacion": false
+      },
+      "area_responsable": "Logistica / TI"
+    },
+    {
+      "id": "bi_corporativo",
+      "nombre": "BI Corporativo",
+      "categoria": "analitica_reportes",
+      "descripcion": "Herramienta mock de reportes ejecutivos, dashboards y exportaciones consolidadas.",
+      "modelo_costo_mock": {
+        "tipo": "viewer_o_creator",
+        "unidad": "usuario_mes",
+        "costo_unitario_mensual_estimado": 15,
+        "requiere_cotizacion": false
+      },
+      "area_responsable": "Datos / BI"
+    },
+    {
+      "id": "motor_analitico_planeacion",
+      "nombre": "Motor Analitico de Planeacion",
+      "categoria": "computo_analitico",
+      "descripcion": "Servicio mock para simulaciones, proyecciones, clasificacion y ejecucion de modelos de planeacion.",
+      "modelo_costo_mock": {
+        "tipo": "consumo_compute",
+        "unidad": "ejecucion_modelo",
+        "costo_unitario_mensual_estimado": 0,
+        "costo_transaccion_estimado": 0.18,
+        "requiere_cotizacion": false
+      },
+      "area_responsable": "Planeacion / Datos"
+    },
+    {
+      "id": "notificaciones_externas",
+      "nombre": "Servicio de Notificaciones Externas",
+      "categoria": "mensajeria",
+      "descripcion": "Proveedor mock para envio de correos, SMS o alertas a participantes de agrocadenas.",
+      "modelo_costo_mock": {
+        "tipo": "consumo_por_mensaje",
+        "unidad": "mensaje",
+        "costo_unitario_mensual_estimado": 0,
+        "costo_transaccion_estimado": 0.01,
+        "requiere_cotizacion": false
+      },
+      "area_responsable": "Comunicaciones / TI"
+    }
+  ],
+  "permisos_externos_catalogo": [
+    {
+      "nombre": "github_repositorios_privados_lectura",
+      "sistema_externo": "github_enterprise",
+      "descripcion": "Consultar repositorios privados asociados a configuracion, documentacion tecnica o evidencia de cambios.",
+      "tipo_acceso": "lectura"
+    },
+    {
+      "nombre": "github_repositorios_privados_escritura",
+      "sistema_externo": "github_enterprise",
+      "descripcion": "Crear ramas, modificar archivos, abrir pull requests o cambiar configuracion tecnica.",
+      "tipo_acceso": "escritura"
+    },
+    {
+      "nombre": "github_actions_administrar",
+      "sistema_externo": "github_enterprise",
+      "descripcion": "Ejecutar o administrar pipelines CI/CD relacionados con Evergreen.",
+      "tipo_acceso": "administracion"
+    },
+    {
+      "nombre": "successfactors_perfil_empleado_consulta",
+      "sistema_externo": "successfactors_hcm",
+      "descripcion": "Consultar perfil laboral, cargo, unidad organizacional y estado del empleado.",
+      "tipo_acceso": "lectura"
+    },
+    {
+      "nombre": "successfactors_compensacion_consulta",
+      "sistema_externo": "successfactors_hcm",
+      "descripcion": "Consultar informacion sensible de compensacion o estructura salarial.",
+      "tipo_acceso": "lectura_sensible"
+    },
+    {
+      "nombre": "workday_worker_profile_read",
+      "sistema_externo": "workday_hcm",
+      "descripcion": "Consultar perfil de trabajador, posicion y unidad organizacional.",
+      "tipo_acceso": "lectura"
+    },
+    {
+      "nombre": "workday_financials_journal_write",
+      "sistema_externo": "workday_hcm",
+      "descripcion": "Registrar o modificar asientos financieros conectados con Workday Financials.",
+      "tipo_acceso": "escritura_financiera"
+    },
+    {
+      "nombre": "atlas_contable_facturas_escritura",
+      "sistema_externo": "atlas_contable",
+      "descripcion": "Registrar facturas, compradores o documentos contables en el sistema externo.",
+      "tipo_acceso": "escritura_financiera"
+    },
+    {
+      "nombre": "atlas_contable_consulta_cuentas",
+      "sistema_externo": "atlas_contable",
+      "descripcion": "Consultar saldos, cuentas contables y centros de costo.",
+      "tipo_acceso": "lectura_financiera"
+    },
+    {
+      "nombre": "bi_dashboards_exportacion",
+      "sistema_externo": "bi_corporativo",
+      "descripcion": "Exportar reportes consolidados o dashboards ejecutivos.",
+      "tipo_acceso": "exportacion"
+    }
+  ],
+  "reglas_impacto": [
+    {
+      "id": "LIC-ADM-001",
+      "modulo": "ADM",
+      "permisos_evergreen": ["gestionar_usuarios", "configurar_permisos"],
+      "permisos_externos_relacionados": ["successfactors_perfil_empleado_consulta", "workday_worker_profile_read"],
+      "sistemas_afectados": ["evergreen_core", "successfactors_hcm", "workday_hcm"],
+      "impacto_licencia": "posible_modulo_rrhh_o_conector_hcm",
+      "riesgo": "alto",
+      "costo_mock": {
+        "tipo": "validacion_contractual",
+        "rango_mensual_estimado": "12-18 por empleado/mes si el conector HCM no esta cubierto",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": true
+      },
+      "accion_sugerida": "validar_con_area_responsable",
+      "area_aprobadora": "RRHH / TI",
+      "explicacion": "Gestionar usuarios y configurar permisos puede requerir consultar identidad laboral, cargo y estado del empleado en un HCM externo."
+    },
+    {
+      "id": "LIC-ADM-002",
+      "modulo": "ADM",
+      "permisos_evergreen": ["auditar_accesos"],
+      "permisos_externos_relacionados": ["github_repositorios_privados_lectura"],
+      "sistemas_afectados": ["github_enterprise", "evergreen_core"],
+      "impacto_licencia": "puede_consumir_seat_github_si_el_auditor_no_tiene_acceso",
+      "riesgo": "medio",
+      "costo_mock": {
+        "tipo": "seat_por_usuario",
+        "rango_mensual_estimado": "0-21 por usuario/mes segun seats disponibles",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "verificar_cupo_licencia",
+      "area_aprobadora": "TI / Seguridad",
+      "explicacion": "Un auditor que necesite evidencias tecnicas en repositorios privados puede consumir una licencia de GitHub si aun no pertenece a la organizacion."
+    },
+    {
+      "id": "LIC-ADM-003",
+      "modulo": "ADM",
+      "permisos_evergreen": ["exportar_reportes_adm", "ver_reportes_adm"],
+      "permisos_externos_relacionados": ["bi_dashboards_exportacion"],
+      "sistemas_afectados": ["bi_corporativo"],
+      "impacto_licencia": "posible_licencia_bi_viewer_o_creator",
+      "riesgo": "medio",
+      "costo_mock": {
+        "tipo": "viewer_o_creator",
+        "rango_mensual_estimado": "0-15 por usuario/mes segun perfil BI",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "verificar_cupo_licencia",
+      "area_aprobadora": "Datos / BI",
+      "explicacion": "La exportacion recurrente de reportes administrativos puede requerir licencia de BI si el reporte se consume fuera de Evergreen."
+    },
+    {
+      "id": "LIC-ADM-004",
+      "modulo": "ADM",
+      "permisos_evergreen": ["notificar_participantes"],
+      "permisos_externos_relacionados": [],
+      "sistemas_afectados": ["notificaciones_externas"],
+      "impacto_licencia": "costo_variable_por_mensaje",
+      "riesgo": "medio",
+      "costo_mock": {
+        "tipo": "consumo_por_mensaje",
+        "rango_mensual_estimado": "variable por volumen de mensajes",
+        "requiere_licencia_adicional": false,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "validar_con_area_responsable",
+      "area_aprobadora": "Comunicaciones / TI",
+      "explicacion": "Enviar notificaciones a participantes puede generar costos variables por correo, SMS o canal externo."
+    },
+    {
+      "id": "LIC-DIS-001",
+      "modulo": "DIS",
+      "permisos_evergreen": ["dis_calcular_distancia_tiempo", "dis_calcular_trayectoria_costo"],
+      "permisos_externos_relacionados": [],
+      "sistemas_afectados": ["mapas_logistica_api"],
+      "impacto_licencia": "costo_variable_por_consulta_api",
+      "riesgo": "medio",
+      "costo_mock": {
+        "tipo": "consumo_por_transaccion",
+        "rango_mensual_estimado": "0.02 por consulta de ruta",
+        "requiere_licencia_adicional": false,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "validar_con_area_responsable",
+      "area_aprobadora": "Logistica / TI",
+      "explicacion": "Cada calculo de ruta puede consumir llamadas a una API externa de mapas o georreferenciacion."
+    },
+    {
+      "id": "LIC-DIS-002",
+      "modulo": "DIS",
+      "permisos_evergreen": ["dis_programar_transporte", "dis_gestionar_pedidos"],
+      "permisos_externos_relacionados": [],
+      "sistemas_afectados": ["mapas_logistica_api"],
+      "impacto_licencia": "posible_conector_tms_o_modulo_logistico",
+      "riesgo": "alto",
+      "costo_mock": {
+        "tipo": "integracion_o_modulo",
+        "rango_mensual_estimado": "sujeto a contrato del proveedor logistico",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": true
+      },
+      "accion_sugerida": "solicitar_cotizacion",
+      "area_aprobadora": "Logistica / Compras / TI",
+      "explicacion": "Programar transporte o gestionar pedidos puede requerir integracion con TMS externo o modulo logistico contratado."
+    },
+    {
+      "id": "LIC-PLA-001",
+      "modulo": "PLA",
+      "permisos_evergreen": ["pla_ejecutar_proyeccion", "pla_calificar_proyecciones", "pla_simular_escenarios"],
+      "permisos_externos_relacionados": [],
+      "sistemas_afectados": ["motor_analitico_planeacion"],
+      "impacto_licencia": "consumo_compute_por_modelo",
+      "riesgo": "medio",
+      "costo_mock": {
+        "tipo": "consumo_compute",
+        "rango_mensual_estimado": "0.18 por ejecucion de modelo",
+        "requiere_licencia_adicional": false,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "validar_con_area_responsable",
+      "area_aprobadora": "Planeacion / Datos",
+      "explicacion": "Simular escenarios y ejecutar proyecciones puede consumir recursos de computo analitico."
+    },
+    {
+      "id": "LIC-PLA-002",
+      "modulo": "PLA",
+      "permisos_evergreen": ["pla_publicar_informe_consolidado"],
+      "permisos_externos_relacionados": ["bi_dashboards_exportacion"],
+      "sistemas_afectados": ["bi_corporativo"],
+      "impacto_licencia": "posible_licencia_bi_creator",
+      "riesgo": "medio",
+      "costo_mock": {
+        "tipo": "creator_bi",
+        "rango_mensual_estimado": "0-15 por usuario/mes segun licencia disponible",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "verificar_cupo_licencia",
+      "area_aprobadora": "Datos / BI",
+      "explicacion": "Publicar informes consolidados puede requerir licencia de creador o publicador en la plataforma BI."
+    },
+    {
+      "id": "LIC-FIN-001",
+      "modulo": "FIN",
+      "permisos_evergreen": ["fin_consultar_cuentas_contables"],
+      "permisos_externos_relacionados": ["atlas_contable_consulta_cuentas"],
+      "sistemas_afectados": ["atlas_contable"],
+      "impacto_licencia": "licencia_financiera_de_consulta",
+      "riesgo": "medio",
+      "costo_mock": {
+        "tipo": "usuario_financiero_consulta",
+        "rango_mensual_estimado": "0-35 por usuario/mes segun licencia disponible",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "verificar_cupo_licencia",
+      "area_aprobadora": "Finanzas / Contabilidad",
+      "explicacion": "Consultar cuentas contables puede requerir usuario de consulta en el sistema contable externo."
+    },
+    {
+      "id": "LIC-FIN-002",
+      "modulo": "FIN",
+      "permisos_evergreen": ["fin_registrar_compradores_facturas", "fin_registrar_movimientos_contables", "fin_generar_comprobante_egreso"],
+      "permisos_externos_relacionados": ["atlas_contable_facturas_escritura", "workday_financials_journal_write"],
+      "sistemas_afectados": ["atlas_contable", "workday_hcm"],
+      "impacto_licencia": "licencia_financiera_escritura_y_consumo_api",
+      "riesgo": "alto",
+      "costo_mock": {
+        "tipo": "usuario_financiero_escritura_mas_api",
+        "rango_mensual_estimado": "35 por usuario/mes mas 0.04 por transaccion",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": true
+      },
+      "accion_sugerida": "validar_con_area_responsable",
+      "area_aprobadora": "Finanzas / Contabilidad / TI",
+      "explicacion": "Registrar facturas, movimientos o comprobantes puede escribir en un sistema contable externo y requiere controles financieros."
+    },
+    {
+      "id": "LIC-GLOBAL-001",
+      "modulo": "GLOBAL",
+      "permisos_evergreen": [],
+      "permisos_externos_relacionados": ["github_repositorios_privados_escritura", "github_actions_administrar"],
+      "sistemas_afectados": ["github_enterprise"],
+      "impacto_licencia": "seat_github_y_permiso_administrativo",
+      "riesgo": "alto",
+      "costo_mock": {
+        "tipo": "seat_por_usuario_mas_riesgo_operativo",
+        "rango_mensual_estimado": "21 por usuario/mes si no hay seat disponible",
+        "requiere_licencia_adicional": true,
+        "requiere_modulo_adicional": false
+      },
+      "accion_sugerida": "revisar_contrato",
+      "area_aprobadora": "TI / Seguridad / DevOps",
+      "explicacion": "Permisos de escritura o administracion en GitHub pueden consumir seat y habilitar cambios de alto impacto en pipelines o repositorios."
+    }
+  ],
+  "heuristicas_reporte": {
+    "sin_costo_aparente": "No se encontraron reglas con licencia adicional ni consumo externo relevante.",
+    "posible_costo": "Existe al menos una regla con consumo variable o validacion de cupo.",
+    "requiere_licencia": "Existe al menos una regla que puede requerir seat, usuario nominal o modulo contratado.",
+    "requiere_validacion_contractual": "Existe al menos una regla con riesgo alto, modulo externo o contrato sujeto a cotizacion."
+  }
+}

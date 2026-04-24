@@ -19,7 +19,7 @@ def _missing_provider_fields(
 ) -> list[str]:
     missing: list[str] = []
     provider_normalized = provider.strip().lower()
-    if provider_normalized == "huggingface" and not api_key:
+    if provider_normalized in {"huggingface", "openai"} and not api_key:
         missing.append("api_key")
     if not base_url:
         missing.append("base_url")
@@ -154,4 +154,3 @@ def build_llm_client(settings: Settings, provider: str | None = None) -> MockLLM
     if not missing_for_runtime:
         return RemoteLLMClient(settings, api_key=api_key, base_url=base_url, model=model)
     return MockLLMClient()
-

@@ -7,7 +7,7 @@ class RecommendationRequest(BaseModel):
     cargo: str = Field(min_length=1, max_length=100)
     modulo_asignado: str = Field(min_length=1, max_length=20)
     descripcion_adicional: str | None = Field(default=None, max_length=500)
-    llm_provider: Literal["ollama", "huggingface"] | None = None
+    llm_provider: Literal["ollama", "huggingface", "openai"] | None = None
 
 
 class RecommendationResponse(BaseModel):
@@ -30,8 +30,9 @@ class HealthResponse(BaseModel):
 
 class MetadataResponse(BaseModel):
     llm_mode: Literal["mock", "remote"]
-    llm_provider_default: Literal["ollama", "huggingface"]
+    llm_provider_default: Literal["ollama", "huggingface", "openai"]
     llm_providers_disponibles: list[str]
+    llm_provider_models: dict[str, str | None] = Field(default_factory=dict)
     retriever_mode: Literal["jaccard", "vector", "hybrid"]
     roles_disponibles: list[str]
     modulos_disponibles: list[str]
@@ -90,6 +91,59 @@ class ReindexResponse(BaseModel):
     vector_index_ready: bool
     vector_collection_size: int | None = None
     index_metadata_valid: bool = False
+
+
+class LicenseImpactRequest(BaseModel):
+    cargo: str = Field(min_length=1, max_length=120)
+    modulo_asignado: str = Field(min_length=1, max_length=20)
+    tipo_participante_inferido: str | None = Field(default=None, max_length=100)
+    rol_recomendado: Literal["Admin", "Invitado"] | None = None
+    permisos_recomendados: list[str] = Field(default_factory=list)
+    permisos_externos_solicitados: list[str] = Field(default_factory=list)
+
+
+class LicenseImpactItem(BaseModel):
+    regla_id: str
+    sistemas_afectados: list[str]
+    sistemas_afectados_nombre: list[str]
+    permisos_relacionados: list[str]
+    permisos_externos_relacionados: list[str]
+    riesgo: Literal["bajo", "medio", "alto"]
+    impacto_licencia: str
+    costo_estimado_mock: str
+    requiere_licencia_adicional: bool
+    requiere_modulo_adicional: bool
+    accion_sugerida: str
+    area_aprobadora: str
+    explicacion: str
+
+
+class LicenseImpactEvidence(BaseModel):
+    tipo: str
+    titulo: str
+    resumen: str
+    fuente_ref: str
+    score: float | None = None
+
+
+class LicenseImpactResponse(BaseModel):
+    clasificacion_general: Literal[
+        "sin_costo_aparente",
+        "posible_costo",
+        "requiere_licencia",
+        "requiere_validacion_contractual",
+    ]
+    riesgo_general: Literal["bajo", "medio", "alto"]
+    requiere_licencia_adicional: bool
+    requiere_modulo_adicional: bool
+    costo_estimado_mock: list[str] = Field(default_factory=list)
+    areas_aprobadoras: list[str] = Field(default_factory=list)
+    acciones_sugeridas: list[str] = Field(default_factory=list)
+    permisos_evaluados: list[str] = Field(default_factory=list)
+    permisos_externos_evaluados: list[str] = Field(default_factory=list)
+    impactos: list[LicenseImpactItem] = Field(default_factory=list)
+    evidencias_recuperadas: list[LicenseImpactEvidence] = Field(default_factory=list)
+    mensaje: str
 
 
 class PromptMessage(BaseModel):

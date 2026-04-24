@@ -1,0 +1,15 @@
+Politicas mock de licencias para permisos DIS y PLA.
+
+En el modulo DIS, los permisos dis_calcular_distancia_tiempo y dis_calcular_trayectoria_costo pueden consumir una API externa de mapas o logistica. El costo no depende necesariamente de una licencia por usuario, sino del volumen de consultas. El informe debe advertir costo variable por transaccion y recomendar estimar volumen mensual.
+
+Los permisos dis_programar_transporte y dis_gestionar_pedidos pueden requerir integracion con un TMS, proveedor logistico o modulo contratado de transporte. Si la integracion no esta cubierta, el riesgo es alto y debe solicitarse cotizacion o revision contractual.
+
+En el modulo PLA, los permisos pla_simular_escenarios, pla_ejecutar_proyeccion y pla_calificar_proyecciones pueden consumir computo analitico. El costo mock se expresa por ejecucion de modelo. La aprobacion corresponde a Planeacion y Datos.
+
+El permiso pla_publicar_informe_consolidado puede requerir licencia BI de creador o publicador si el informe se distribuye fuera de Evergreen. Si solo queda dentro del modulo PLA, puede no generar costo adicional.
+
+Resumen DIS y PLA:
+- calculo de rutas: costo variable por API, riesgo medio.
+- programacion de transporte: posible conector TMS, riesgo alto.
+- simulaciones y proyecciones: costo compute por ejecucion, riesgo medio.
+- publicacion BI: posible licencia BI, riesgo medio.
