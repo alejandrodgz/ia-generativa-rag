@@ -45,6 +45,9 @@ class RolePermissionRecommender:
 
         active_llm_client = llm_client or self.llm_client
         decision = active_llm_client.complete(bundle, roles_validos, permisos_validos)
+        llm_provider_usado = str(getattr(active_llm_client, "provider", "ollama"))
+        llm_mode_usado = str(getattr(active_llm_client, "last_completion_mode", "mock"))
+        llm_model_usado = getattr(active_llm_client, "model", None)
 
         # Detectar tipo de retriever
         retriever_class = self.retriever.__class__.__name__
@@ -86,6 +89,9 @@ class RolePermissionRecommender:
             permisos_recomendados=decision.permisos_recomendados,
             justificacion=decision.justificacion,
             nivel_confianza=decision.nivel_confianza,
+            llm_provider_usado=llm_provider_usado,
+            llm_mode_usado=llm_mode_usado,
+            llm_model_usado=llm_model_usado,
             tipo_participante_inferido=decision.tipo_participante_inferido,
             casos_similares_ref=[caso["id"] for caso in casos],
             retrieval_mode=retrieval_mode,

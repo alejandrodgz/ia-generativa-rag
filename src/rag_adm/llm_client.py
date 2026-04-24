@@ -35,6 +35,9 @@ class MockLLMClient:
     Toma una decision basada en las reglas y casos del bundle, sin llamar a ningun LLM externo.
     Actua como fallback cuando RemoteLLMClient falla.
     """
+    provider: str = "ollama"
+    model: str | None = None
+    last_completion_mode: str = "mock"
 
     def complete(
         self,
@@ -42,6 +45,7 @@ class MockLLMClient:
         roles_validos: set[str],
         permisos_validos: set[str],
     ) -> LLMDecision:
+        self.last_completion_mode = "mock"
         reglas = bundle.reglas_relevantes
         casos = bundle.casos_similares
         documentos = bundle.documentos_apoyo
@@ -105,6 +109,8 @@ class RemoteLLMClient:
         self.api_key = api_key
         self.base_url = base_url
         self.model = model
+        self.provider = "ollama"
+        self.last_completion_mode = "remote"
         self.fallback = fallback or MockLLMClient()
 
     def complete(
@@ -117,9 +123,11 @@ class RemoteLLMClient:
         try:
             response_text = self._call_remote(messages)
             if response_text:
+                self.last_completion_mode = "remote"
                 return parse_llm_response(response_text, roles_validos, permisos_validos)
         except (LLMDecisionError, Exception):
             pass
+        self.last_completion_mode = "mock_fallback"
         return self.fallback.complete(bundle, roles_validos, permisos_validos)
 
     def _call_remote(self, messages: list[PromptMessage]) -> str:
@@ -152,5 +160,7 @@ def build_llm_client(settings: Settings, provider: str | None = None) -> MockLLM
             )
     missing_for_runtime = _missing_provider_fields(selected_provider, api_key, base_url, model)
     if not missing_for_runtime:
-        return RemoteLLMClient(settings, api_key=api_key, base_url=base_url, model=model)
-    return MockLLMClient()
+        client = RemoteLLMClient(settings, api_key=api_key, base_url=base_url, model=model)
+        client.provider = selected_provider
+        return client
+    return MockLLMClient(provider=selected_provider, model=model)

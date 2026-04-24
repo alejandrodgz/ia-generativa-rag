@@ -54,7 +54,7 @@
 >
 > El **Prompt Builder** serializa ese contexto en un prompt con contrato de salida. El LLM no responde libremente: responde bajo esquema, con campos explícitos y justificación verificable contra las evidencias recuperadas.
 >
-> Implementamos dos rutas de inferencia por configuración: **Mock determinístico** para pruebas reproducibles y **cliente remoto** para ejecución real, compatible con Ollama local (`qwen2.5:7b`) y Hugging Face (`Qwen/Qwen2.5-7B-Instruct`). La capa de negocio permanece estable; solo cambia el adaptador de inferencia.
+> Implementamos dos rutas de inferencia por configuración: **Mock determinístico** para pruebas reproducibles y **cliente remoto** para ejecución real, compatible con Ollama local (`qwen2.5:7b`) y Hugging Face (`meta-llama/Llama-3.1-8B-Instruct`). La capa de negocio permanece estable; solo cambia el adaptador de inferencia.
 >
 > Por último, el enriquecimiento en vivo dispara reindexado automático ante nuevas fuentes. Eso nos da aprendizaje operativo incremental: la siguiente recomendación ya incorpora el nuevo contexto sin reentrenar el modelo base."
 

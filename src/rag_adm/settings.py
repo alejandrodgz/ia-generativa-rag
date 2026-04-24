@@ -117,7 +117,7 @@ def get_settings() -> Settings:
         ollama_model=os.getenv("OLLAMA_MODEL", os.getenv("LLM_MODEL", "qwen2.5:7b")),
         huggingface_api_key=os.getenv("HUGGINGFACE_API_KEY"),
         huggingface_base_url=os.getenv("HUGGINGFACE_BASE_URL", "https://router.huggingface.co/v1"),
-        huggingface_model=os.getenv("HUGGINGFACE_MODEL", "Qwen/Qwen2.5-7B-Instruct"),
+        huggingface_model=os.getenv("HUGGINGFACE_MODEL", "meta-llama/Llama-3.1-8B-Instruct"),
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         openai_base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         openai_model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),

@@ -11,101 +11,44 @@ Este es el diagrama recomendado para explicar la arquitectura actual del proyect
 Muestra componentes, tecnologias y flujo de informacion de punta a punta.
 
 ```mermaid
-flowchart LR
-    U["Usuario - solicita una recomendacion"]
+%%{init: {"flowchart": {"nodeSpacing": 75, "rankSpacing": 85, "diagramPadding": 24, "wrappingWidth": 260}, "themeVariables": {"fontSize": "18px", "fontFamily": "Arial"}}}%%
+flowchart TD
+    U["1. Usuario<br/>diligencia perfil"]
+    FE["2. Frontend<br/>envia POST /recomendar-rol"]
+    API["3. main.py<br/>recibe recomendar_rol"]
+    SETTINGS["4. Lee settings<br/>y proveedor LLM"]
+    REC["5. get_recommender<br/>obtiene orquestador cacheado"]
+    KBLOAD["6. KnowledgeBase load<br/>carga JSON en memoria"]
+    FILES["politicas_acceso<br/>catalogo_permisos<br/>historico y sinteticos"]
+    VECTOR_INIT["7. VectorRetriever<br/>inicializa vector_store"]
+    CHROMA_READY["8. ChromaDB<br/>se carga o se crea si esta vacio"]
+    EMB["Embeddings<br/>convierten textos a vectores"]
+    RETRIEVE["9. VectorRetriever<br/>consulta ChromaDB"]
+    RULES["Reglas relevantes"]
+    CASES["Casos similares"]
+    DOCS["Documentos de apoyo"]
+    BUNDLE["10. RolePermissionRecommender<br/>arma PromptBundle"]
+    PROMPT["11. prompt_builder<br/>construye mensajes"]
+    LLM["12. LLM seleccionado<br/>responde JSON"]
+    PARSER["13. llm_parser<br/>valida rol y permisos"]
+    RESPONSE["14. RecommendationResponse<br/>vuelve al frontend"]
+    IMPACT["15. Frontend llama<br/>POST /analizar-impacto-licencias"]
+    LICENSE["16. license_impact<br/>calcula riesgo y costo mock"]
+    UI["17. UI muestra<br/>recomendacion, evidencia e impacto"]
 
-    subgraph FE["Frontend Web"]
-        FE1["index.html - HTML CSS JavaScript"]
-        FE2["Formulario - cargo, modulo, descripcion, proveedor LLM"]
-        FE3["Vista de resultados - rol, permisos, confianza, evidencias, impacto"]
-    end
-
-    subgraph API["Backend API"]
-        API1["main.py - FastAPI"]
-        API2["GET /metadata"]
-        API3["POST /recomendar-rol"]
-        API4["POST /analizar-impacto-licencias"]
-        API5["POST /enrichment"]
-    end
-
-    subgraph ORQ["Orquestacion RAG"]
-        ORQ1["RolePermissionRecommender - recommender.py"]
-        ORQ2[PromptBundle]
-        ORQ3["prompt_builder.py - mensajes system y user"]
-    end
-
-    subgraph RET["Recuperacion de contexto"]
-        RET2[VectorRetriever]
-    end
-
-    subgraph KB["Base de conocimiento"]
-        KB1["politicas_acceso.json - roles y reglas"]
-        KB2["catalogo_permisos.json - catalogo valido"]
-        KB3["historico_configuraciones.json - casos previos"]
-        KB4["historico_sintetico.json - casos generados"]
-        KB5["data/user_knowledge TXT - documentos extra"]
-        KB6["KnowledgeBase load"]
-    end
-
-    subgraph VEC["Capa vectorial"]
-        V1[vector_store.py]
-        V2[ChromaDB persistente]
-        V3["Embeddings - FastEmbed o fallback"]
-        V4["index_metadata.py - estado y firma del indice"]
-    end
-
-    subgraph LLM["Capa de decision"]
-        L1[llm_client.py]
-        L2["RemoteLLMClient - Ollama, Hugging Face, OpenAI"]
-        L3["MockLLMClient - fallback deterministico"]
-        L4["llm_parser.py - valida JSON"]
-    end
-
-    subgraph LIC["Analisis posterior"]
-        LIC1[license_impact.py]
-        LIC2[politicas_licencias_costos.json]
-        LIC3["clasificacion, riesgo, areas aprobadoras, costo mock"]
-    end
-
-    U --> FE1
-    FE1 --> FE2
-    FE2 --> API1
-    API1 --> API2
-    API1 --> API3
-    API1 --> API4
-    API1 --> API5
-
-    API3 --> ORQ1
-    RET2 --> KB6
-    ORQ1 --> RET2
-    KB1 --> KB6
-    KB2 --> KB6
-    KB3 --> KB6
-    KB4 --> KB6
-    KB5 --> KB6
-
-    RET2 --> V1
-    V1 --> V2
-    V1 --> V3
-    V1 --> V4
-
-    ORQ1 --> ORQ2
-    ORQ2 --> ORQ3
-    ORQ3 --> L1
-    L1 --> L2
-    L1 --> L3
-    L2 --> L4
-    L4 --> ORQ1
-    L3 --> ORQ1
-
-    ORQ1 --> API3
-    API3 --> FE3
-
-    FE3 --> API4
-    API4 --> LIC1
-    LIC2 --> LIC1
-    LIC1 --> LIC3
-    LIC3 --> FE3
+    U --> FE --> API --> SETTINGS --> REC --> KBLOAD
+    FILES --> KBLOAD
+    KBLOAD --> VECTOR_INIT --> CHROMA_READY
+    EMB --> CHROMA_READY
+    CHROMA_READY --> RETRIEVE
+    RETRIEVE --> RULES
+    RETRIEVE --> CASES
+    RETRIEVE --> DOCS
+    RULES --> BUNDLE
+    CASES --> BUNDLE
+    DOCS --> BUNDLE
+    BUNDLE --> PROMPT --> LLM --> PARSER --> RESPONSE --> UI
+    UI --> IMPACT --> LICENSE --> UI
 ```
 
 ## 2. Como leer el diagrama
@@ -116,37 +59,23 @@ El usuario interactua con `index.html`, que recoge el perfil a evaluar y el prov
 
 ### Capa 2. API
 
-`main.py` es la puerta de entrada. Expone los endpoints y decide que flujo activar:
-
-- consulta de metadata
-- recomendacion RAG
-- enrichment y reindexacion
-- analisis de impacto de licencias
+`main.py` expone varias rutas, pero una recomendacion no las ejecuta todas. Cuando el usuario pide una recomendacion, entra por `POST /recomendar-rol`. Despues de recibir esa respuesta, el frontend hace otra llamada separada a `POST /analizar-impacto-licencias` para mostrar el bloque de riesgo y costos. Las rutas de `metadata` y `enrichment` solo se usan para cargar la UI, subir documentos o reindexar.
 
 ### Capa 3. Orquestacion
 
-`RolePermissionRecommender` coordina el flujo principal. No decide el retrieval ni el proveedor por si mismo; solo consume las dependencias activas y arma la respuesta final.
+`RolePermissionRecommender` coordina el flujo principal. Primero pide contexto al `VectorRetriever`, luego arma el `PromptBundle`, llama al LLM configurado y empaqueta la respuesta final con trazabilidad.
 
-### Capa 4. Retrieval
+### Capa 4. Retrieval vectorial
 
-El sistema soporta tres estrategias:
-
-- `JaccardRetriever`: similitud simple por tokens
-- `VectorRetriever`: busqueda semantica con ChromaDB
-- `HybridRetriever`: reglas estructuradas + casos vectoriales con reranking
+En la ruta explicada para esta entrega usamos `VectorRetriever`. Este componente consulta ChromaDB tres veces con filtros distintos: una para reglas, una para casos historicos y una para documentos de apoyo.
 
 ### Capa 5. Base de conocimiento
 
-La informacion del dominio vive en archivos JSON y TXT. Esa informacion alimenta el retrieval y sirve como restriccion para evitar alucinaciones.
+`KnowledgeBase.load()` no es la base de datos vectorial. Lo que hace es leer los JSON del proyecto y dejarlos en memoria como objetos Python. Esa informacion se usa de dos formas: para validar roles/permisos y para alimentar el indice vectorial cuando ChromaDB se crea o se reconstruye.
 
 ### Capa 6. LLM
 
-La recomendacion la produce:
-
-- un proveedor remoto compatible con OpenAI (`ollama`, `huggingface`, `openai`)
-- o `MockLLMClient` cuando no hay configuracion completa o el LLM falla
-
-Luego `llm_parser.py` valida la salida estructurada para que solo se acepten roles y permisos consistentes con el sistema.
+La recomendacion la produce el proveedor LLM seleccionado en la interfaz o en `.env`: `ollama`, `huggingface` u `openai`. Luego `llm_parser.py` valida la salida estructurada para que solo se acepten roles y permisos consistentes con el sistema.
 
 ### Capa 7. Analisis posterior
 
@@ -157,10 +86,10 @@ Despues de recomendar el rol y los permisos, la UI dispara un segundo flujo para
 Pueden explicarlo asi:
 
 1. El usuario entra por la interfaz web y diligencia su perfil.
-2. FastAPI recibe la solicitud y consulta metadata o activa el flujo de recomendacion.
-3. El recommender pide contexto al retriever.
-4. El retriever busca reglas, casos y documentos en la base de conocimiento.
-5. Si el modo es vectorial o hibrido, entra ChromaDB con embeddings.
+2. FastAPI recibe la solicitud por `POST /recomendar-rol`.
+3. `KnowledgeBase.load()` carga los JSON en memoria.
+4. `VectorRetriever` asegura que ChromaDB exista y consulta el indice vectorial.
+5. El retriever devuelve reglas, casos y documentos de apoyo.
 6. Con ese contexto se construye un prompt estructurado.
 7. El LLM decide rol, permisos, confianza y tipo de participante inferido.
 8. La respuesta se valida y se devuelve con trazabilidad.
@@ -209,9 +138,7 @@ Tabla sugerida:
 | `main.py` | API | define endpoints y wiring | FastAPI | usa caches y reindexacion |
 | `KnowledgeBase` | componente de datos | carga reglas, permisos e historicos | Python + JSON | fuente canonica del dominio |
 | `VectorRetriever` | retrieval | busqueda semantica | LangChain + ChromaDB | requiere indice |
-| `HybridRetriever` | retrieval | mezcla reglas estructuradas con casos vectoriales | Python | mejora trazabilidad |
 | `RemoteLLMClient` | integracion LLM | llama proveedores remotos | httpx | compatible con OpenAI API |
-| `MockLLMClient` | fallback | responde cuando falla el remoto | Python | evita caida del flujo |
 | `license_impact.py` | analisis posterior | estima costos y riesgo | Python + JSON | salida mock academica |
 
 ### 2. Diseno de la funcionalidad RAG

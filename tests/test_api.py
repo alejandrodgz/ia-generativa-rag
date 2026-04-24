@@ -43,6 +43,8 @@ def test_recomendar_rol_endpoint() -> None:
     body = response.json()
     assert body["rol_recomendado"] == "Admin"
     assert "gestionar_usuarios" in body["permisos_recomendados"]
+    assert body["llm_provider_usado"] in {"ollama", "huggingface", "openai"}
+    assert body["llm_mode_usado"] in {"remote", "mock", "mock_fallback"}
     assert body["retrieval_mode"] in {"jaccard", "vector", "hybrid"}
     assert isinstance(body["reglas_recuperadas_ref"], list)
     assert isinstance(body["casos_similares_score"], list)
@@ -62,6 +64,7 @@ def test_recomendar_rol_endpoint_for_dis_module() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["rol_recomendado"] == "Invitado"
+    assert body["llm_provider_usado"] in {"ollama", "huggingface", "openai"}
     assert "dis_calcular_distancia_tiempo" in body["permisos_recomendados"]
 
 
@@ -94,4 +97,5 @@ def test_recomendar_rol_sin_tipo_participante_infiere() -> None:
     assert body["rol_recomendado"] in {"Admin", "Invitado"}
     assert isinstance(body["permisos_recomendados"], list)
     assert body["nivel_confianza"] in {"alto", "medio", "bajo"}
+    assert body["llm_mode_usado"] in {"remote", "mock", "mock_fallback"}
     assert body["tipo_participante_inferido"] is not None

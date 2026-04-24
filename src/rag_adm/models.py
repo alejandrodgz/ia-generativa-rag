@@ -15,6 +15,9 @@ class RecommendationResponse(BaseModel):
     permisos_recomendados: list[str]
     justificacion: str
     nivel_confianza: Literal["alto", "medio", "bajo"]
+    llm_provider_usado: Literal["ollama", "huggingface", "openai"]
+    llm_mode_usado: Literal["remote", "mock", "mock_fallback"]
+    llm_model_usado: str | None = None
     tipo_participante_inferido: str | None = None
     casos_similares_ref: list[str] = Field(default_factory=list)
     retrieval_mode: Literal["jaccard", "vector", "hybrid"] | None = None

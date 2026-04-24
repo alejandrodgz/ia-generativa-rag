@@ -257,7 +257,7 @@ Pasos recomendados:
 | `OLLAMA_MODEL` | `qwen2.5:7b` | modelo local |
 | `HUGGINGFACE_API_KEY` | null | token de Hugging Face |
 | `HUGGINGFACE_BASE_URL` | `https://router.huggingface.co/v1` | endpoint HF Router |
-| `HUGGINGFACE_MODEL` | `Qwen/Qwen2.5-7B-Instruct` | modelo remoto |
+| `HUGGINGFACE_MODEL` | `meta-llama/Llama-3.1-8B-Instruct` | modelo remoto |
 | `OPENAI_API_KEY` | null | API key OpenAI |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | endpoint OpenAI |
 | `OPENAI_MODEL` | `gpt-5-mini` | modelo remoto |
@@ -326,7 +326,7 @@ python -m uvicorn rag_adm.main:app --app-dir src --host 127.0.0.1 --port 8000
 ```bash
 HUGGINGFACE_API_KEY=hf_xxx \
 HUGGINGFACE_BASE_URL=https://router.huggingface.co/v1 \
-HUGGINGFACE_MODEL=Qwen/Qwen2.5-7B-Instruct \
+HUGGINGFACE_MODEL=meta-llama/Llama-3.1-8B-Instruct \
 LLM_DEFAULT_PROVIDER=huggingface \
 RETRIEVER_MODE=hybrid \
 HYBRID_RETRIEVER_MODE=true \
@@ -341,7 +341,7 @@ OLLAMA_BASE_URL=http://127.0.0.1:11434/v1 \
 OLLAMA_MODEL=qwen2.5:7b \
 HUGGINGFACE_API_KEY=hf_xxx \
 HUGGINGFACE_BASE_URL=https://router.huggingface.co/v1 \
-HUGGINGFACE_MODEL=Qwen/Qwen2.5-7B-Instruct \
+HUGGINGFACE_MODEL=meta-llama/Llama-3.1-8B-Instruct \
 OPENAI_API_KEY=sk_xxx \
 OPENAI_BASE_URL=https://api.openai.com/v1 \
 OPENAI_MODEL=gpt-5-mini \

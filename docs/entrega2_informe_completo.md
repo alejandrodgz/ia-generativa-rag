@@ -21,97 +21,47 @@ La implementacion se desarrollo sin herramientas Low-Code. No se usaron GPTs per
 ### 1.1 Vista Fisica de Arquitectura
 
 ```mermaid
-flowchart LR
-    U["Usuario - solicita recomendacion"]
+%%{init: {"flowchart": {"nodeSpacing": 75, "rankSpacing": 85, "diagramPadding": 24, "wrappingWidth": 260}, "themeVariables": {"fontSize": "18px", "fontFamily": "Arial"}}}%%
+flowchart TD
+    U["1. Usuario<br/>diligencia perfil"]
+    FE["2. Frontend<br/>envia POST /recomendar-rol"]
+    API["3. main.py<br/>recibe recomendar_rol"]
+    SETTINGS["4. Lee settings<br/>y proveedor LLM"]
+    REC["5. get_recommender<br/>obtiene orquestador cacheado"]
+    KBLOAD["6. KnowledgeBase load<br/>carga JSON en memoria"]
+    FILES["politicas_acceso<br/>catalogo_permisos<br/>historico y sinteticos"]
+    VECTOR_INIT["7. VectorRetriever<br/>inicializa vector_store"]
+    CHROMA_READY["8. ChromaDB<br/>se carga o se crea si esta vacio"]
+    EMB["Embeddings<br/>convierten textos a vectores"]
+    RETRIEVE["9. VectorRetriever<br/>consulta ChromaDB"]
+    RULES["Reglas relevantes"]
+    CASES["Casos similares"]
+    DOCS["Documentos de apoyo"]
+    BUNDLE["10. RolePermissionRecommender<br/>arma PromptBundle"]
+    PROMPT["11. prompt_builder<br/>construye mensajes"]
+    LLM["12. LLM seleccionado<br/>responde JSON"]
+    PARSER["13. llm_parser<br/>valida rol y permisos"]
+    RESPONSE["14. RecommendationResponse<br/>vuelve al frontend"]
+    IMPACT["15. Frontend llama<br/>POST /analizar-impacto-licencias"]
+    LICENSE["16. license_impact<br/>calcula riesgo y costo mock"]
+    UI["17. UI muestra<br/>recomendacion, evidencia e impacto"]
 
-    subgraph FE["Frontend Web"]
-        FE1["index.html - HTML CSS JavaScript"]
-        FE2["Formulario - cargo, modulo, descripcion, proveedor LLM"]
-        FE3["Resultados - rol, permisos, confianza, evidencias, impacto"]
-    end
-
-    subgraph API["Backend API"]
-        API1["main.py - FastAPI"]
-        API2["GET /metadata"]
-        API3["POST /recomendar-rol"]
-        API4["POST /analizar-impacto-licencias"]
-        API5["POST /enrichment"]
-    end
-
-    subgraph ORQ["Orquestacion RAG"]
-        ORQ1["RolePermissionRecommender - recommender.py"]
-        ORQ2[PromptBundle]
-        ORQ3["prompt_builder.py - system prompt y user prompt"]
-    end
-
-    subgraph RET["Recuperacion de Contexto"]
-        RET2[VectorRetriever]
-    end
-
-    subgraph KB["Base de Conocimiento"]
-        KB1["politicas_acceso.json - roles y reglas"]
-        KB2["catalogo_permisos.json - permisos validos"]
-        KB3["historico_configuraciones.json - casos previos"]
-        KB4["historico_sintetico.json - casos generados"]
-        KB5["data/user_knowledge TXT - documentos extra"]
-        KB6["KnowledgeBase load"]
-    end
-
-    subgraph VEC["Capa Vectorial"]
-        V1[vector_store.py]
-        V2[ChromaDB persistente]
-        V3["Embeddings - FastEmbed o fallback"]
-        V4["index_metadata.py - estado del indice"]
-    end
-
-    subgraph LLM["Capa de Decision"]
-        L1[llm_client.py]
-        L2["RemoteLLMClient - Ollama, Hugging Face, OpenAI"]
-        L3["MockLLMClient - fallback deterministico"]
-        L4["llm_parser.py - valida JSON"]
-    end
-
-    subgraph LIC["Analisis Posterior"]
-        LIC1[license_impact.py]
-        LIC2[politicas_licencias_costos.json]
-        LIC3["riesgo, costo mock, areas aprobadoras"]
-    end
-
-    U --> FE1 --> FE2 --> API1
-    API1 --> API2
-    API1 --> API3
-    API1 --> API4
-    API1 --> API5
-
-    API3 --> ORQ1
-    RET2 --> KB6
-    ORQ1 --> RET2
-    KB1 --> KB6
-    KB2 --> KB6
-    KB3 --> KB6
-    KB4 --> KB6
-    KB5 --> KB6
-
-    RET2 --> V1
-    V1 --> V2
-    V1 --> V3
-    V1 --> V4
-
-    ORQ1 --> ORQ2 --> ORQ3 --> L1
-    L1 --> L2
-    L1 --> L3
-    L2 --> L4
-    L4 --> ORQ1
-    L3 --> ORQ1
-
-    ORQ1 --> API3 --> FE3
-    FE3 --> API4
-    API4 --> LIC1
-    LIC2 --> LIC1
-    LIC1 --> LIC3 --> FE3
+    U --> FE --> API --> SETTINGS --> REC --> KBLOAD
+    FILES --> KBLOAD
+    KBLOAD --> VECTOR_INIT --> CHROMA_READY
+    EMB --> CHROMA_READY
+    CHROMA_READY --> RETRIEVE
+    RETRIEVE --> RULES
+    RETRIEVE --> CASES
+    RETRIEVE --> DOCS
+    RULES --> BUNDLE
+    CASES --> BUNDLE
+    DOCS --> BUNDLE
+    BUNDLE --> PROMPT --> LLM --> PARSER --> RESPONSE --> UI
+    UI --> IMPACT --> LICENSE --> UI
 ```
 
-La arquitectura separa responsabilidades en capas. La interfaz captura la solicitud y permite seleccionar el proveedor LLM. FastAPI expone los servicios y conecta los componentes internos. El recommender coordina el flujo RAG. El retriever recupera contexto segun el modo configurado. La capa LLM genera la decision o usa un fallback deterministico. Finalmente, el modulo de impacto de licencias calcula riesgos mock asociados a los permisos recomendados.
+La arquitectura separa responsabilidades en capas. La interfaz captura la solicitud y permite seleccionar el proveedor LLM. FastAPI recibe `POST /recomendar-rol` y delega la recomendacion al orquestador RAG. `KnowledgeBase.load()` carga los archivos JSON en memoria; esta carga no es todavia la base vectorial. Despues, `VectorRetriever` inicializa o reutiliza ChromaDB y consulta el indice vectorial para recuperar reglas, casos y documentos de apoyo. Finalmente, el LLM seleccionado produce una respuesta JSON validada, y la UI hace una segunda llamada a `POST /analizar-impacto-licencias` para calcular el reporte mock de riesgo y costos.
 
 ### 1.2 Especificacion de Componentes
 
@@ -310,7 +260,7 @@ El proyecto soporta tres proveedores configurables:
 | Proveedor | Modelo sugerido | Base URL | Tipo de uso |
 |---|---|---|---|
 | Ollama | `qwen2.5:7b` | `http://127.0.0.1:11434/v1` | LLM local para demo sin costo |
-| Hugging Face | `Qwen/Qwen2.5-7B-Instruct` | `https://router.huggingface.co/v1` | Modelo remoto via HF Router |
+| Hugging Face | `meta-llama/Llama-3.1-8B-Instruct` | `https://router.huggingface.co/v1` | Modelo remoto via HF Router |
 | OpenAI | `gpt-5-mini` | `https://api.openai.com/v1` | Modelo remoto para comparacion |
 
 ### 3.1 Comparacion de Resultados con cada LLM
@@ -342,14 +292,14 @@ Evidencia pendiente:
 - captura de la respuesta
 - observacion sobre si respeta JSON y si justifica con evidencia
 
-#### Hugging Face - `Qwen/Qwen2.5-7B-Instruct`
+#### Hugging Face - `meta-llama/Llama-3.1-8B-Instruct`
 
 Configuracion:
 
 ```bash
 HUGGINGFACE_API_KEY=<token>
 HUGGINGFACE_BASE_URL=https://router.huggingface.co/v1
-HUGGINGFACE_MODEL=Qwen/Qwen2.5-7B-Instruct
+HUGGINGFACE_MODEL=meta-llama/Llama-3.1-8B-Instruct
 LLM_DEFAULT_PROVIDER=huggingface
 ```
 

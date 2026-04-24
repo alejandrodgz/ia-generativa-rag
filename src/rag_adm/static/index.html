@@ -721,6 +721,7 @@
       <span class="result-value casos-list" id="res-casos"></span>
     </div>
     <div class="debug-box" id="retrieval-debug">
+      <div><strong>LLM usado:</strong> <span id="res-llm-used">-</span></div>
       <div><strong>Retrieval:</strong> <span id="res-retrieval-mode">-</span></div>
       <div><strong>Reglas recuperadas:</strong> <span id="res-reglas">-</span></div>
       <div><strong>Top-k (id:score):</strong> <span id="res-topk">-</span></div>
@@ -768,7 +769,7 @@
   };
   const LLM_PROVIDER_DEFAULT_MODEL = {
     ollama: 'qwen2.5:7b',
-    huggingface: 'Qwen/Qwen2.5-7B-Instruct',
+    huggingface: 'meta-llama/Llama-3.1-8B-Instruct',
     openai: 'gpt-5-mini',
   };
   function getProviderLabel(provider) {
@@ -1032,6 +1033,11 @@
         ? data.casos_similares_ref.join(', ')
         : 'Ninguno';
 
+      document.getElementById('res-llm-used').textContent = [
+        data.llm_provider_usado || 'desconocido',
+        data.llm_mode_usado || 'desconocido',
+        data.llm_model_usado || 'modelo no reportado',
+      ].join(' · ');
       document.getElementById('res-retrieval-mode').textContent = data.retrieval_mode || '-';
       document.getElementById('res-reglas').textContent = (data.reglas_recuperadas_ref || []).length
         ? data.reglas_recuperadas_ref.join(', ')
